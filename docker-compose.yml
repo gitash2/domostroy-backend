@@ -1,0 +1,28 @@
+services:
+  rabbitmq:
+    image: rabbitmq@sha256:a0f4e8eefa826f9576d596ca4b1b9168a60118a1a83768dbb5c00d8479cdbfb3
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  redis:
+    image: redis@sha256:bd41d55aae1ecff61b2fafd0d66761223fe94a60373eb6bb781cfbb570a84079
+    container_name: redis
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_USER=admin
+      - REDIS_USER_PASSWORD=admin
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - ./redisdata:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    restart: always
