@@ -1,0 +1,66 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  servlet:
+    multipart:
+      enabled: true
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  cloud:
+    gateway:
+      enabled: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - '*'
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - '*'
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 10s
+      routes:
+        - id: auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<path>.*), /$\{path}
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+        - id: notifications
+          uri: http://localhost:8082
+          predicates:
+            - Path=/notification/**
+          filters:
+            - RewritePath=/notifications/(?<path>.*), /$\{notifications}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
+springdoc:
+  cache:
+    disabled: true
+  swagger-ui:
+    use-root-path: true
+  api-docs:
+    version: openapi_3_1
