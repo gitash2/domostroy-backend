@@ -6,5 +6,8 @@ create table if not exists roles(
 create sequence if not exists roles_seq
     start with 1
     increment by 50
-    cache 10;
+    cache 50;
+
+insert into roles values(1, 'ADMIN'),
+                        (2, 'USER')
 

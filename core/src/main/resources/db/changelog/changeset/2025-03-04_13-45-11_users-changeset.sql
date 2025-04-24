@@ -5,7 +5,8 @@ create table if not exists users(
     first_name varchar(64) not null,
     last_name varchar(64),
     phone_number varchar(16),
-    role_id int not null references roles(id)
+    role_id int not null references roles(id),
+    created_at timestamptz default now()
 );
 
 create sequence if not exists users_seq

@@ -37,6 +37,7 @@
 		<module>core</module>
 		<module>notifications</module>
         <module>common-events</module>
+        <module>aggregates</module>
     </modules>
 	<url/>
 	<licenses>
@@ -53,6 +54,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<springdoc.version>2.7.0</springdoc.version>
 		<spotless.skip>false</spotless.skip>
 	</properties>
 	<dependencies>
@@ -91,12 +93,6 @@
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
-			<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui -->
-			<dependency>
-				<groupId>org.springdoc</groupId>
-				<artifactId>springdoc-openapi-ui</artifactId>
-				<version>1.7.0</version>
-			</dependency>
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
@@ -107,7 +103,6 @@
 				<artifactId>log4j-core</artifactId>
 				<version>2.6.1</version>
 			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
@@ -183,7 +178,6 @@
 				</executions>
 				<configuration>
 					<skip>${spotless.skip}</skip>
-
 					<java>
 						<googleJavaFormat>
 							<version>1.9</version>
