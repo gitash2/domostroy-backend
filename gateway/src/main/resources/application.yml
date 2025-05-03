@@ -31,7 +31,7 @@ spring:
               - '*'
       httpclient:
         connect-timeout: 10000
-        response-timeout: 10s
+        response-timeout: 600s
       routes:
         - id: auth
           uri: http://localhost:8081
@@ -46,11 +46,17 @@ spring:
           filters:
             - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
         - id: notifications
+          uri: http://localhost:8083
+          predicates:
+            - Path=/notifications/**
+          filters:
+            - RewritePath=/notifications/(?<path>.*), /$\{path}
+        - id: core
           uri: http://localhost:8082
           predicates:
-            - Path=/notification/**
+            - Path=/core/**
           filters:
-            - RewritePath=/notifications/(?<path>.*), /$\{notifications}
+            - RewritePath=/core/(?<path>.*), /$\{path}
 management:
   endpoints:
     web:
