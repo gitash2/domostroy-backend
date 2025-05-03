@@ -1,17 +1,18 @@
 package domostroy.core.adapters.adaptersOutput.offers.projections;
 
+import domostroy.aggregates.currency.Currency;
 import domostroy.aggregates.offer.domain.OfferAggregate;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "offers")
 @NoArgsConstructor
+@Getter
 public class OfferProjection {
     @Id
     @GeneratedValue
@@ -23,9 +24,10 @@ public class OfferProjection {
 
     private Double price;
 
-    private String category;
+    private Integer categoryId;
 
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
 
     private Integer cityId;
 
@@ -38,7 +40,7 @@ public class OfferProjection {
         title = aggregate.getTitle();
         description = aggregate.getDescription();
         price = aggregate.getPrice();
-        category = aggregate.getCategory();
+        categoryId = aggregate.getCategoryId();
         currency = aggregate.getCurrency();
         cityId = aggregate.getCityId();
         userId = aggregate.getUserId();
@@ -50,7 +52,7 @@ public class OfferProjection {
                 id,
                 title,
                 description,
-                category,
+                categoryId,
                 currency,
                 price,
                 cityId,
