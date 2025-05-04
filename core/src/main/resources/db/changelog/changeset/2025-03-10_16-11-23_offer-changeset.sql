@@ -59,7 +59,7 @@ create table rent_request(
     id bigint primary key,
     offer_id bigint references offers(id),
     user_id bigint references users(id),
-    isApproved boolean not null default false
+    is_approved boolean not null default false
 );
 
 create sequence if not exists rent_request_seq

@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +33,9 @@ public class AuthenticationService {
 
         UserDetails user = userDetailsService.loadUserByUsername(req.email());
         String jwt = jwtService.generateToken(user);
+        Date expiresAt = jwtService.extractExpiration(jwt);
 
-        return new JWTAuthenticationResponse(jwt);
+        return new JWTAuthenticationResponse(jwt, expiresAt);
 
     }
 

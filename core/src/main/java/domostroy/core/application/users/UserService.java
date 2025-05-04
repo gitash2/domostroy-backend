@@ -1,8 +1,11 @@
 package domostroy.core.application.users;
 
-import domostroy.core.adapters.adaptersInput.dto.input.users.ChangePasswordDTO;
-import domostroy.core.adapters.adaptersInput.dto.input.users.UserDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangePasswordDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangeUserInfoDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.users.AnotherUserDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.users.UserDTO;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
+import domostroy.core.application.offers.OfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,16 +16,29 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final OfferRepository offerRepository;
     private final PasswordEncoder passwordEncoder;
 
 
-    public UserDTO getUserData(Long userId) {
+    public UserDTO getCurrentUserData(Long userId) {
         User user = userRepository.findById(userId);
         return new UserDTO(
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getPhoneNumber()
+        );
+    }
+
+
+    public AnotherUserDTO getUserData(Long userId) {
+        User user = userRepository.findById(userId);
+        return new AnotherUserDTO(
+                userId,
+                user.getFirstName(),
+                user.getLastName(),
+                offerRepository.getMyOffersCount(user.getId()),
+                user.getCreatedAt()
         );
     }
 
@@ -40,6 +56,14 @@ public class UserService {
         }
 
         user.setPassword(dto.newPassword());
+        userRepository.save(user);
+    }
+
+    public void changeUserInfo(Long userId, ChangeUserInfoDTO dto) {
+        User user = userRepository.findById(userId);
+        user.setFirstName(dto.firstName());
+        user.setLastName(dto.lastName());
+        user.setPhoneNumber(dto.phoneNumber());
         userRepository.save(user);
     }
 }

@@ -1,5 +1,6 @@
 package domostroy.aggregates.offer.domain;
 
+import domostroy.aggregates.currency.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +17,8 @@ public class OfferAggregate
     private Long offerId;
     private String title;
     private String description;
-    private String category;
-    private String currency;
+    private Integer categoryId;
+    private Currency currency;
     private Double price;
     private Integer cityId;
     private Long userId;

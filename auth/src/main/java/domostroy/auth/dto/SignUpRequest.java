@@ -15,7 +15,7 @@ public record SignUpRequest(
 
         String lastName,
         @Pattern(
-                regexp = "^(\\+7|8)?\\s?\\(?\\d{3}\\)?\\s?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2}$",
+                regexp = "^(\\+7|7|8)?\\s?\\(?\\d{3}\\)?\\s?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2}$",
                 message = "Invalid Russian phone number"
         )
         @Size(min =8 , max = 16)

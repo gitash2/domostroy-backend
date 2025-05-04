@@ -2,7 +2,6 @@ package domostroy.core.application.cloudStorage;
 
 import domostroy.aggregates.offer.domain.OfferPhoto;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface OfferPhotoRepository {
@@ -11,4 +10,5 @@ public interface OfferPhotoRepository {
     List<OfferPhoto> saveAll(List<OfferPhoto> offerPhotos);
     List<OfferPhoto> findAllByOfferId(Long offerId);
     List<String> findAllPhotoPathsByOfferId(Long offerId);
+
 }

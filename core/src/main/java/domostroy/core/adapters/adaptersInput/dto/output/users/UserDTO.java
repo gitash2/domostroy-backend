@@ -1,4 +1,4 @@
-package domostroy.core.adapters.adaptersInput.dto.input.users;
+package domostroy.core.adapters.adaptersInput.dto.output.users;
 
 public record UserDTO(
     String email,

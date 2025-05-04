@@ -2,14 +2,15 @@ package domostroy.core.adapters.adaptersOutput.categories.projections;
 
 import domostroy.aggregates.category.Category;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "categories")
 @NoArgsConstructor
+@AllArgsConstructor
 public class CategoryProjection {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
