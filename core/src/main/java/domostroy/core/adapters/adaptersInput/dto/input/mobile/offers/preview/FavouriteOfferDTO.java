@@ -5,6 +5,7 @@ import domostroy.aggregates.currency.Currency;
 public record FavouriteOfferDTO(
         Long id,
         String title,
+        String description,
         Double price,
         Currency currency,
         String photoUrl,

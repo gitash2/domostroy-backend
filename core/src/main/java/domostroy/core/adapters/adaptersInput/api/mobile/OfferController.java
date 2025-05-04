@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,12 +26,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
-import java.util.List;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-@RequestMapping("/offer")
+@RequestMapping("/offers")
 @RequiredArgsConstructor
 @Tag(name = "Объявления", description = "API мобильного приложения для работы с объявлениями аренды")
 public class OfferController {
@@ -53,7 +53,7 @@ public class OfferController {
             summary = "Поиск объявлений аренды",
             description = "Поиск объявлений по заданным параметрам фильтрации"
     )
-    public ResponseEntity<OfferOutput> searchOffers(@AuthenticationPrincipal UserDetails user, @RequestBody SearchDTO dto) {
+    public ResponseEntity<OfferOutput> searchOffers(@AuthenticationPrincipal @Nullable UserDetails user, @RequestBody SearchDTO dto) {
         return ok(offerService.search(user, dto));
     }
 
@@ -62,8 +62,8 @@ public class OfferController {
             summary = "Получить детали объявления",
             description = "Получить полную информацию об объявлении по его идентификатору "
     )
-    public ResponseEntity<OfferDTO> getOffer(@PathVariable Long offerId) {
-        return ok(offerService.getOfferData(offerId));
+    public ResponseEntity<OfferDTO> getOffer(@AuthenticationPrincipal UserDetails user, @PathVariable Long offerId) {
+        return ok(offerService.getOfferData(user, offerId));
     }
 
     @DeleteMapping("/{offerId}")
@@ -114,10 +114,5 @@ public class OfferController {
             @PathVariable Long offerId,
             @AuthenticationPrincipal UserDetails user) {
         offerService.addOfferToFavourites(offerId, user.getUsername());
-    }
-
-    @GetMapping("/recommendations")
-    public ResponseEntity<Page<OfferInfoDTO>> getRecommendations(@AuthenticationPrincipal UserDetails user, @PageableDefault(page = 0, size = 10) Pageable pageable, String seed) {
-        return ok(offerService.getRecommendations(user, pageable, seed));
     }
 }

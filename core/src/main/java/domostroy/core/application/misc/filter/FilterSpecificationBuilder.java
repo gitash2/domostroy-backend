@@ -2,12 +2,15 @@ package domostroy.core.application.misc.filter;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class FilterSpecificationBuilder<T> {
     private List<SearchCriteria> params = new ArrayList<>();
+    private String seed;
+    private Instant snapshot;
 
     public FilterSpecificationBuilder<T> with(String key, String operation, Object value) {
         params.add(new SearchCriteria(key, operation, value));
@@ -21,6 +24,12 @@ public class FilterSpecificationBuilder<T> {
 
     public FilterSpecificationBuilder<T> withCriteriaFrom(List<SearchCriteria> searchCriteriaList) {
         params.addAll(searchCriteriaList);
+        return this;
+    }
+
+    public FilterSpecificationBuilder<T> withRandomOrder(String seed, Instant snapshot) {
+        this.seed = seed;
+        this.snapshot = snapshot;
         return this;
     }
 
@@ -40,6 +49,10 @@ public class FilterSpecificationBuilder<T> {
                     result = Specification.where(result)
                             .and(new FilterSpecification<>(param));
                 }
+            }
+            if (seed != null && snapshot != null) {
+                result = Specification.where(result)
+                        .and(new RandomOrderSpecification<>(seed, snapshot));
             }
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);

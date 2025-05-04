@@ -12,8 +12,8 @@ public interface OfferRepository {
     void deleteOffer(Long offerId);
     Page<OfferProjection> getMyOffers(Long userId, Pageable pageable);
     Page<OfferProjection> findAll(Specification<OfferProjection> spec, Pageable pageable);
-    Page<OfferProjection> findRandomOffersWithSeed(String seed, Pageable pageable);
     Page<OfferProjection> findFavouriteOffersByUserId(Long userId, Pageable pageable);
     boolean isMyOffer(Long offerId, String email);
     boolean isFavourite(Long offerId, String email);
+    int getMyOffersCount(Long userId);
 }

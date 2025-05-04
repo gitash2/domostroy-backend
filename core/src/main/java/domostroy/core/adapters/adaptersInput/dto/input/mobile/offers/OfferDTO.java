@@ -16,9 +16,11 @@ public record OfferDTO(
         LocalDateTime createdAt,
         Integer cityId,
         Long userId,
-        Collection<String> photos
+        Collection<String> photos,
+        boolean isFavourite
+
 ) {
-    public OfferDTO(OfferProjection offer, Collection<String> photos) {
+    public OfferDTO(OfferProjection offer, Collection<String> photos, boolean isFavourite) {
         this (
                 offer.getId(),
                 offer.getTitle(),
@@ -29,7 +31,8 @@ public record OfferDTO(
                 offer.getCreatedAt(),
                 offer.getCityId(),
                 offer.getUserId(),
-                photos
+                photos,
+                isFavourite
         );
     }
 }

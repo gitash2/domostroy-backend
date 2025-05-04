@@ -43,11 +43,6 @@ public class OfferJPARepository implements OfferRepository {
     }
 
     @Override
-    public Page<OfferProjection> findRandomOffersWithSeed(String seed, Pageable pageable) {
-        return offerDAO.findRandomOffersWithSeed(seed, pageable);
-    }
-
-    @Override
     public Page<OfferProjection> findFavouriteOffersByUserId(Long userId, Pageable pageable) {
         return offerDAO.findFavouriteOffersByUserId(userId, pageable);
     }
@@ -60,5 +55,10 @@ public class OfferJPARepository implements OfferRepository {
     @Override
     public boolean isFavourite(Long offerId, String email) {
         return offerDAO.isFavourite(offerId, email);
+    }
+
+    @Override
+    public int getMyOffersCount(Long userId) {
+        return offerDAO.getMyOffersCount(userId);
     }
 }

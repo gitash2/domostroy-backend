@@ -12,7 +12,7 @@ public record Sorting(
 
     public Sorting validateRequest() {
         if (property == null) {
-            throw new IllegalStateException("property is null");
+            throw new IllegalStateException("Property is null");
         }
         return this;
     }

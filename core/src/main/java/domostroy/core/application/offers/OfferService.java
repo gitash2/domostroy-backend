@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -112,13 +113,15 @@ public class OfferService {
         return new CreateOfferResponse(savedOffer);
     }
 
-    public OfferDTO getOfferData(Long offerId) {
+    public OfferDTO getOfferData(UserDetails user, Long offerId) {
+        boolean isFavourite = offerRepository.isFavourite(offerId, user.getUsername());
         Collection<OfferPhoto> photos = offerPhotoRepository.findAllByOfferId(offerId);
         Collection<String> photoUrls = photos.stream()
                 .map(it -> fileStorageService.getPresignedUrl(it.imagePath()))
                 .toList();
         OfferProjection offer = offerRepository.getOfferById(offerId);
-        return new OfferDTO(offer, photoUrls);
+
+        return new OfferDTO(offer, photoUrls, isFavourite);
     }
 
 
@@ -146,6 +149,7 @@ public class OfferService {
                     return new MyOfferDTO(
                             proj.getId(),
                             proj.getTitle(),
+                            proj.getDescription(),
                             proj.getPrice(),
                             proj.getCurrency(),
                             fileStorageService.getPresignedUrl(firstPath),
@@ -168,6 +172,7 @@ public class OfferService {
                 .map(it -> new FavouriteOfferDTO(
                         it.getId(),
                         it.getTitle(),
+                        it.getDescription(),
                         it.getPrice(),
                         it.getCurrency(),
                         fileStorageService.getPresignedUrl(offerPhotoRepository.findAllPhotoPathsByOfferId(it.getId()).getFirst()),
@@ -182,32 +187,40 @@ public class OfferService {
         if (offer.getUserId().equals(user.getId())) {
             return;
         }
-        user.getFavourites().add(offer);
+        if (offerRepository.isFavourite(offerId, email)) {
+            user.getFavourites().remove(offer);
+        } else {
+            user.getFavourites().add(offer);
+        }
         userRepository.save(user);
     }
 
     public OfferOutput search(UserDetails user, SearchDTO dto) {
-        String username = user.getUsername();
-        FilterSpecificationBuilder<OfferProjection> builder = new FilterSpecificationBuilder<>();
-        Specification<OfferProjection> spec = builder.withCriteriaFrom(dto.searchCriteriaList())
-                .build();
+        String username = user != null ? user.getUsername() : null;
 
-        Page<OfferProjection> offers = offerRepository.findAll(spec, dto.toRequest());
+        FilterSpecificationBuilder<OfferProjection> builder =
+                new FilterSpecificationBuilder<OfferProjection>()
+                        .withCriteriaFrom(dto.searchCriteriaList());
+
+        if (dto.pas().seed() != null && dto.pas().snapshot() != null) {
+            builder.withRandomOrder(dto.pas().seed(), dto.pas().snapshot());
+        }
+
+        Specification<OfferProjection> spec = builder.build();
+
+        Pageable pageReq = dto.pas().toPageRequest();
+
+        Page<OfferProjection> offers =
+                offerRepository.findAll(spec, pageReq);
+
         Page<OfferInfoDTO> data = mapToOfferInfoPage(username, offers);
         return new OfferOutput(PaginationOutput.fromPage(offers), data);
-    }
-
-
-    public Page<OfferInfoDTO> getRecommendations(UserDetails user, Pageable pageable, String seed) {
-        String username = user.getUsername();
-        Page<OfferProjection> recommendations = offerRepository.findRandomOffersWithSeed(seed, pageable);
-
-        return mapToOfferInfoPage(username, recommendations);
     }
 
     private Page<OfferInfoDTO> mapToOfferInfoPage(String email, Page<OfferProjection> page) {
         List<OfferInfoDTO> dtos = page.getContent().stream()
                 .map(proj -> {
+                    boolean isFav = email != null && offerRepository.isFavourite(proj.getId(), email);
                     String firstPath = offerPhotoRepository.findAllPhotoPathsByOfferId(proj.getId())
                             .stream().findFirst()
                             .orElseThrow(() -> new ObjectNotFoundException("No photo for offer " + proj.getId()));
@@ -218,7 +231,7 @@ public class OfferService {
                             proj.getCurrency(),
                             fileStorageService.getPresignedUrl(firstPath),
                             cityRepository.findById(proj.getCityId()),
-                            offerRepository.isFavourite(proj.getId(), email)
+                            isFav
                     );
                 }).toList();
 

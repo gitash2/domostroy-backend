@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public record MyOfferDTO(
         Long id,
         String title,
+        String description,
         Double price,
         Currency currency,
         String photoUrl,
