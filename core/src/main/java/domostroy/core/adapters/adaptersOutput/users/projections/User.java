@@ -1,5 +1,6 @@
 package domostroy.core.adapters.adaptersOutput.users.projections;
 
+import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -29,9 +31,19 @@ public class User implements UserDetails {
 
     private String phoneNumber;
 
+    private LocalDate createdAt;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private RoleProjection role;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "favourites",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "offer_id")
+    )
+    private List<OfferProjection> favourites;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

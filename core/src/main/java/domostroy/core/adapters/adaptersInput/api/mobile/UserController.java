@@ -1,9 +1,12 @@
 package domostroy.core.adapters.adaptersInput.api.mobile;
 
-import domostroy.core.adapters.adaptersInput.dto.input.users.ChangePasswordDTO;
-import domostroy.core.adapters.adaptersInput.dto.input.users.UserDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangePasswordDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangeUserInfoDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.users.AnotherUserDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.users.UserDTO;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import domostroy.core.application.users.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,16 +23,33 @@ import static org.springframework.http.ResponseEntity.ok;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<UserDTO> getUserData(@AuthenticationPrincipal User user) {
-        return ok(userService.getUserData(user.getId()));
+        return ok(userService.getCurrentUserData(user.getId()));
     }
 
-    @PatchMapping
+    @PatchMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Сменить пароль",
+               description = "Смена пароля с проверкой на корректность предыдущего")
     public void changePassword(
             @AuthenticationPrincipal User user,
             @RequestBody ChangePasswordDTO dto) {
         userService.changePassword(user.getId(), dto);
+    }
+
+    @PatchMapping("/userInfo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Редактировать данные пользователя")
+    public void changeUserInfo(
+            @AuthenticationPrincipal User user,
+            @RequestBody ChangeUserInfoDTO dto) {
+        userService.changeUserInfo(user.getId(), dto);
+    }
+
+    @GetMapping("/{userId}")
+    @Operation(summary = "Получить данные другого пользователя")
+    public ResponseEntity<AnotherUserDTO> getUser(@PathVariable Long userId) {
+        return ok(userService.getUserData(userId));
     }
 }

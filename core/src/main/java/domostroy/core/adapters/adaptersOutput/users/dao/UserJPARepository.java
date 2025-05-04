@@ -1,11 +1,13 @@
 package domostroy.core.adapters.adaptersOutput.users.dao;
 
-import domostroy.aggregates.users.domain.UserAggregate;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.LessorInfo;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import domostroy.core.application.users.UserRepository;
 import domostroy.core.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,5 +34,10 @@ public class UserJPARepository implements UserRepository {
     @Override
     public void save(User user) {
 
+    }
+
+    @Override
+    public List<LessorInfo> findAllByIds(List<Long> ids) {
+        return userDAO.findAllByIds(ids);
     }
 }
