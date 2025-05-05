@@ -1,4 +1,4 @@
-package domostroy.core.adapters.adaptersInput.dto.input.offers;
+package domostroy.core.adapters.adaptersInput.dto.input.mobile.offers;
 
 import domostroy.aggregates.currency.Currency;
 

@@ -62,7 +62,7 @@ public class OfferController {
             summary = "Получить детали объявления",
             description = "Получить полную информацию об объявлении по его идентификатору "
     )
-    public ResponseEntity<OfferDTO> getOffer(@AuthenticationPrincipal UserDetails user, @PathVariable Long offerId) {
+    public ResponseEntity<OfferDTO> getOffer(@Nullable @AuthenticationPrincipal UserDetails user, @PathVariable Long offerId) {
         return ok(offerService.getOfferData(user, offerId));
     }
 

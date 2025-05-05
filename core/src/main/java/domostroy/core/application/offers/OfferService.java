@@ -114,7 +114,11 @@ public class OfferService {
     }
 
     public OfferDTO getOfferData(UserDetails user, Long offerId) {
-        boolean isFavourite = offerRepository.isFavourite(offerId, user.getUsername());
+        boolean isFavourite = false;
+        if (user != null) {
+            isFavourite = offerRepository.isFavourite(offerId, user.getUsername());
+        }
+
         Collection<OfferPhoto> photos = offerPhotoRepository.findAllByOfferId(offerId);
         Collection<String> photoUrls = photos.stream()
                 .map(it -> fileStorageService.getPresignedUrl(it.imagePath()))
@@ -219,6 +223,7 @@ public class OfferService {
 
     private Page<OfferInfoDTO> mapToOfferInfoPage(String email, Page<OfferProjection> page) {
         List<OfferInfoDTO> dtos = page.getContent().stream()
+                .filter(proj -> email == null || !offerRepository.isMyOffer(proj.getId(), email))
                 .map(proj -> {
                     boolean isFav = email != null && offerRepository.isFavourite(proj.getId(), email);
                     String firstPath = offerPhotoRepository.findAllPhotoPathsByOfferId(proj.getId())

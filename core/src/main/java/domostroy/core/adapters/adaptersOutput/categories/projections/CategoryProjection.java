@@ -3,12 +3,14 @@ package domostroy.core.adapters.adaptersOutput.categories.projections;
 import domostroy.aggregates.category.Category;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class CategoryProjection {
     @Id
     private Integer id;

@@ -1,6 +1,5 @@
 package domostroy.core.adapters.adaptersOutput.offerCalendar.dao;
 
-import domostroy.aggregates.offer.domain.OfferCalendarAggregate;
 import domostroy.core.adapters.adaptersOutput.offerCalendar.projections.OfferCalendarProjection;
 import domostroy.core.application.offerCalendar.OfferCalendarRepository;
 import lombok.RequiredArgsConstructor;

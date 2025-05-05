@@ -29,3 +29,29 @@ spring:
     listener:
       simple:
         default-requeue-rejected: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: alien228133@gmail.com
+    password: oedp kcyi tpdd jgou
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  rabbitmq:
+    host: localhost
+    username: admin
+    password: admin
+    port: 5672
+    listener:
+      simple:
+        default-requeue-rejected: false

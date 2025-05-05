@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/user/{userId}",
                                 "/city/popular",
                                 "/city",
-                                "/category").permitAll()
+                                "/category",
+                                "/offers/{offerId}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -44,4 +44,16 @@ services:
       - "3000:3000"
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+  postgres:
+    image: postgres:15-alpine
+    container_name: domostroy
+    restart: always
+    environment:
+      POSTGRES_USER: me
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: domostroy_db
+    ports:
+      - "25431:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
 

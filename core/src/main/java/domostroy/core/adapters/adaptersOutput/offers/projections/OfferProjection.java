@@ -2,12 +2,14 @@ package domostroy.core.adapters.adaptersOutput.offers.projections;
 
 import domostroy.aggregates.currency.Currency;
 import domostroy.aggregates.offer.domain.OfferAggregate;
+import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "offers")
@@ -28,6 +30,9 @@ public class OfferProjection {
 
     @Enumerated(EnumType.STRING)
     private Currency currency;
+
+    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "favourites")
+    Set<User> favouredBy;
 
     private Integer cityId;
 

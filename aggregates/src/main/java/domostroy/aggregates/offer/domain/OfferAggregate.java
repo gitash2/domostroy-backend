@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class OfferAggregate
-{
+public class OfferAggregate {
     private Long offerId;
     private String title;
     private String description;
