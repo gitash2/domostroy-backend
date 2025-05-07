@@ -48,7 +48,7 @@ spring:
           starttls:
             enable: true
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     username: admin
     password: admin
     port: 5672

@@ -37,9 +37,9 @@ spring:
   datasource:
     username: me
     password: 1234
-    url: jdbc:postgresql://localhost:25431/domostroy_db
+    url: jdbc:postgresql://domostroy:25431/domostroy_db
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     username: admin
     password: admin
     port: 5672
@@ -48,7 +48,7 @@ spring:
         default-requeue-rejected: false
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
 jwt:
   secret: 731ecd05cfdfa62d6a85516db9ad16aed03e509fea730ab9f5685135fb3e05151254e7598112f72831af367d3b6045b5c3980b70c62aa5177bc80fd01c41eb51

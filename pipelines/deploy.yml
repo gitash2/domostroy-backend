@@ -1,0 +1,33 @@
+name: CI/CD to Yandex Cloud
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Yandex Cloud Container Registry
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON }}  # крёстная аутентификация :contentReference[oaicite:2]{index=2}
+
+      - name: Build and push Docker image
+        env:
+          CR_REGISTRY: crp00000000000000000
+          CR_REPOSITORY: my-service
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
+          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy container to VM
+        uses: yc-actions/yc-coi-deploy@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON }}
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          vm-name: my-service-vm
+          container-image: cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:${{ github.sha }}
+          zone: ${{ secrets.YC_ZONE }}  # например, ru-central1-a :contentReference[oaicite:3]{index=3}

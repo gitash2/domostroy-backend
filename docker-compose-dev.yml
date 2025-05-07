@@ -6,7 +6,7 @@ services:
   rabbitmq:
     image: rabbitmq@sha256:a0f4e8eefa826f9576d596ca4b1b9168a60118a1a83768dbb5c00d8479cdbfb3
     container_name: rabbitmq
-    hostname: localhost
+    hostname: rabbitmq
     restart: always
     environment:
       RABBITMQ_DEFAULT_USER: admin
@@ -32,13 +32,6 @@ services:
       - ./redisdata:/data
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     restart: always
-    networks:
-      - mynet
-  zipkin:
-    image: openzipkin/zipkin
-    container_name: zipkin
-    ports:
-      - "9411:9411"
     networks:
       - mynet
   prometheus:
@@ -72,5 +65,32 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     networks:
       - mynet
+  auth:
+    image: cr.yandex/crpfl8pv8kjt97qeeh3s/auth:latest
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    ports:
+      - "8082:8082"
+  core:
+    image: cr.yandex/crpfl8pv8kjt97qeeh3s/core:latest
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+  notifications:
+    image: cr.yandex/crpfl8pv8kjt97qeeh3s/notifications:latest
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8083:8083"
 
-
+  gateway:
+    image: cr.yandex/crpfl8pv8kjt97qeeh3s/gateway:latest
+    depends_on:
+      - core
+      - auth
+      - notifications
+    ports:
+      - "8080:8080"
