@@ -10,38 +10,11 @@ env:
   COMMIT_SHA: ${{ github.sha }}
 
 jobs:
-  filter:
-    runs-on: ubuntu-latest
-    outputs:
-      changed-modules: ${{ steps.filter.outputs.filter_result }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Filter changed modules
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            auth:
-              - 'auth/**'
-            core:
-              - 'core/**'
-            notifications:
-              - 'notifications/**'
-            gateway:
-              - 'gateway/**'
-            # also watch the root pom, so that changes there trigger all modules:
-            pom:
-              - 'pom.xml'
-            
-
   build-and-push:
-    needs: filter
-    if: ${{ needs.filter.outputs.changed-modules != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: ${{ fromJson(needs.filter.outputs.changed-modules) }}
+        module: [ auth, core, notifications, gateway ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
