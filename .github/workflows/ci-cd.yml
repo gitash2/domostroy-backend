@@ -145,7 +145,7 @@ jobs:
           context: .
           file: Dockerfile
           build-args: |
-            module=${{ matrix.module }}  # прокидываем в Dockerfile переменную module
+            module=${{ matrix.module }}
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ matrix.module }}:${{ env.COMMIT_SHA }}
