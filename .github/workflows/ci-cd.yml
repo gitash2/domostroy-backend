@@ -156,34 +156,29 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     steps:
-      - name: Install ssh-askpass
-        run: sudo apt-get update && sudo apt-get install -y ssh-askpass
+      - name: Install Expect
+        run: sudo apt-get update && sudo apt-get install -y expect
 
-      - name: Write SSH key & askpass helper
+      - name: Write SSH deploy key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
+          echo "${{ secrets.YC_SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
-          cat > askpass.sh <<'EOF'
-          #!/bin/sh
-          echo "$SSH_PASSPHRASE"
-          EOF
-          chmod +x askpass.sh
 
       - name: Start ssh-agent & unlock key
-        env:
-          SSH_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
         run: |
           eval "$(ssh-agent -s)"
-          export DISPLAY=:0
-          export SSH_ASKPASS="$(pwd)/askpass.sh"
-          setsid ssh-add deploy_key < /dev/null
+          expect <<'EOF'
+            # spawn ssh-add on our key file
+            spawn ssh-add deploy_key
+            # wait for the passphrase prompt
+            expect "Enter passphrase for deploy_key:"
+            # send the secret, then a newline
+            send "${{ secrets.SSH_KEY_PASSPHRASE }}\r"
+            expect eof
+          EOF
 
-      - name: Install SSH key (with passphrase)
-        uses: webfactory/ssh-agent@v0.6.0
-        with:
-          ssh-private-key: ${{ secrets.YC_SSH_PRIVATE_KEY }}
-        env:
-          SSH_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+      - name: List loaded SSH keys
+        run: ssh-add -l
 
       - name: Deploy to Yandex VM
         uses: appleboy/ssh-action@v0.1.5
