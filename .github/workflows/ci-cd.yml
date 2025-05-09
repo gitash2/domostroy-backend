@@ -156,12 +156,17 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     steps:
-      - name: Install SSH key (with passphrase)
-        uses: webfactory/ssh-agent@v0.6.0
-        with:
-          ssh-private-key: ${{ secrets.YC_SSH_PRIVATE_KEY }}
-        env:
-          SSH_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+      - name: Write SSH key to disk
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
+          chmod 600 deploy_key
+
+      - name: Start ssh-agent and add key (manual)
+        run: |
+          eval "$(ssh-agent -s)"
+          export DISPLAY=:0
+          ssh-add deploy_key <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
+      
 
       - name: Deploy to Yandex VM
         uses: appleboy/ssh-action@v0.1.5
