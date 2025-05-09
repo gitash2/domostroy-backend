@@ -12,5 +12,7 @@ public record BearerToken(
     @Override
     public String getToken() {
         return rawToken.substring(Constants.DEFAULT_TOKEN_PREFIX.length());
+
+
     }
 }
