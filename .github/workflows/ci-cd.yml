@@ -153,47 +153,36 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
     steps:
-      - name: Install Expect
-        run: sudo apt-get update && sudo apt-get install -y expect
+      - name: Install Expect & SSH client
+        run: sudo apt-get update && sudo apt-get install -y expect openssh-client
 
-      - name: Write SSH deploy key
+      - name: Deploy via SSH with Expect
+        env:
+          SSH_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          YC_IAM_TOKEN: ${{ secrets.YC_IAM_TOKEN }}
+          REGISTRY: ${{ env.REGISTRY }}
         run: |
           echo "${{ secrets.YC_SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
 
-      - name: Start ssh-agent & unlock key
-        run: |
+          # Start ssh-agent and unlock the key via Expect
           eval "$(ssh-agent -s)"
           expect <<'EOF'
-            # spawn ssh-add on our key file
             spawn ssh-add deploy_key
-            # wait for the passphrase prompt
             expect "Enter passphrase for deploy_key:"
-            # send the secret, then a newline
-            send "${{ secrets.SSH_KEY_PASSPHRASE }}\r"
+            send "$env(SSH_PASSPHRASE)\r"
             expect eof
           EOF
 
-      - name: List loaded SSH keys
-        run: ssh-add -l
-
-      - name: Deploy to Yandex VM
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.YC_SSH_PRIVATE_KEY }}
-          agent: true
-          script: |
+          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<'REMOTE'
             cd /domostroy-backend
-            
-            
+
             echo "::group::Create env files on VM"
-            
-            # auth
             cat > run_auth_dev.env <<EOF
             SERVER_PORT=8081
             SPRING_APPLICATION_NAME=auth
@@ -212,8 +201,6 @@ jobs:
             JWT_EXPIRATION=360
             JWT_STRENGTH=10
             EOF
-            
-            # core
             cat > run_core_dev.env <<EOF
             SERVER_PORT=8082
             SPRING_APPLICATION_NAME=core
@@ -233,8 +220,6 @@ jobs:
             JWT_EXPIRATION=360
             JWT_STRENGTH=10
             EOF
-            
-            # gateway
             cat > run_gateway_dev.env <<EOF
             SERVER_PORT=8080
             SPRING_APPLICATION_NAME=gateway
@@ -267,8 +252,6 @@ jobs:
             SPRINGDOC_SWAGGER_UI_USE_ROOT_PATH=true
             SPRINGDOC_API_DOCS_VERSION=openapi_3_1
             EOF
-            
-            # notifications
             cat > run_notifications_dev.env <<EOF
             SERVER_PORT=8083
             SPRING_APPLICATION_NAME=notifications
@@ -286,14 +269,12 @@ jobs:
             SPRING_RABBITMQ_PORT=5672
             SPRING_RABBITMQ_LISTENER_SIMPLE_DEFAULTREQUEUEREJECTED=false
             EOF
-            
-            echo "::endgroup::"
-            
-            echo "::group::Pull images"
-            docker login ${{ env.REGISTRY }} \
-              --username ${{ secrets.DOCKERHUB_USERNAME }} \
-              --password ${{ secrets.DOCKERHUB_TOKEN }}
+
+            echo "::group::Pull & restart services"
+            docker login "$REGISTRY" --username oauth --password "$YC_IAM_TOKEN"
             docker compose pull
             docker compose -f docker-compose-dev.yml up -d --remove-orphans
             echo "::endgroup::"
+          REMOTE
+  
   
