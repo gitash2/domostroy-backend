@@ -67,30 +67,45 @@ services:
       - mynet
   auth:
     image: cr.yandex/crpfl8pv8kjt97qeeh3s/auth:latest
+    env_file:
+      - run_auth_dev.env
     depends_on:
       - postgres
       - redis
       - rabbitmq
     ports:
       - "8082:8082"
+    networks:
+      - mynet
   core:
     image: cr.yandex/crpfl8pv8kjt97qeeh3s/core:latest
+    env_file:
+      - run_core_dev.env
     depends_on:
       - postgres
     ports:
       - "8081:8081"
+    networks:
+      - mynet
   notifications:
     image: cr.yandex/crpfl8pv8kjt97qeeh3s/notifications:latest
+    env_file:
+      - run_notifications_dev.env
     depends_on:
       - rabbitmq
     ports:
       - "8083:8083"
-
+    networks:
+      - mynet
   gateway:
     image: cr.yandex/crpfl8pv8kjt97qeeh3s/gateway:latest
+    env_file:
+      - run_gateway_dev.env
     depends_on:
       - core
       - auth
       - notifications
     ports:
       - "8080:8080"
+    networks:
+      - mynet

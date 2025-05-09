@@ -45,7 +45,7 @@ spring:
   datasource:
     username: me
     password: 1234
-    url: jdbc:postgresql://domostroy:25431/domostroy_db
+    url: jdbc:postgresql://domostroy:5432/domostroy_db
     driver-class-name: org.postgresql.Driver
   liquibase:
     enabled: true

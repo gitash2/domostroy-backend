@@ -15,22 +15,6 @@
 	<name>backend</name>
 	<description>backend</description>
 
-	<profiles>
-		<!-- Skip Spotless if the module is a POM -->
-		<profile>
-			<id>skip-spotless-for-pom</id>
-			<activation>
-				<property>
-					<name>project.packaging</name>
-					<value>pom</value>
-				</property>
-			</activation>
-			<properties>
-				<spotless.skip>true</spotless.skip>
-			</properties>
-		</profile>
-	</profiles>
-
 	<modules>
 		<module>auth</module>
 		<module>gateway</module>
@@ -156,5 +140,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
