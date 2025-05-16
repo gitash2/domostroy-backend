@@ -166,6 +166,10 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           YC_IAM_TOKEN: ${{ secrets.YC_IAM_TOKEN }}
           REGISTRY: ${{ env.REGISTRY }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
           echo "${{ secrets.YC_SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
@@ -173,108 +177,112 @@ jobs:
           # Start ssh-agent and unlock the key via Expect
           eval "$(ssh-agent -s)"
           expect <<'EOF'
-            spawn ssh-add deploy_key
-            expect "Enter passphrase for deploy_key:"
-            send "$env(SSH_PASSPHRASE)\r"
-            expect eof
+          spawn ssh-add deploy_key
+          expect "Enter passphrase for deploy_key:"
+          send "$env(SSH_PASSPHRASE)\r"
+          expect eof
+          EOF
+  
+          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<REMOTE
+          cd ~/domostroy-backend
+
+          echo "::group::Create env files on VM"
+        
+          sudo tee run_auth_dev.env > /dev/null <<EOF
+          SERVER_PORT=8081
+          SPRING_APPLICATION_NAME=auth
+          SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
+          SPRING_DATASOURCE_USERNAME=me
+          SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+          SPRING_DATASOURCE_URL=jdbc:postgresql://domostroy:5432/domostroy_db
+          SPRING_RABBITMQ_HOST=rabbitmq
+          SPRING_RABBITMQ_USERNAME=admin
+          SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+          SPRING_RABBITMQ_PORT=5672
+          SPRING_RABBITMQ_LISTENER_SIMPLE_DEFAULTREQUEUEREJECTED=false
+          SPRING_DATA_REDIS_HOST=redis
+          SPRING_DATA_REDIS_PORT=6379
+          JWT_SECRET=${JWT_SECRET}
+          JWT_EXPIRATION=360
+          JWT_STRENGTH=10
           EOF
 
-          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<REMOTE
-            cd ~/domostroy-backend
-
-            echo "::group::Create env files on VM"
-            cat > run_auth_dev.env <<EOF
-            SERVER_PORT=8081
-            SPRING_APPLICATION_NAME=auth
-            SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
-            SPRING_DATASOURCE_USERNAME=me
-            SPRING_DATASOURCE_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            SPRING_DATASOURCE_URL=jdbc:postgresql://domostroy:5432/domostroy_db
-            SPRING_RABBITMQ_HOST=rabbitmq
-            SPRING_RABBITMQ_USERNAME=admin
-            SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
-            SPRING_RABBITMQ_PORT=5672
-            SPRING_RABBITMQ_LISTENER_SIMPLE_DEFAULTREQUEUEREJECTED=false
-            SPRING_DATA_REDIS_HOST=redis
-            SPRING_DATA_REDIS_PORT=6379
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_EXPIRATION=360
-            JWT_STRENGTH=10
-            EOF
-            cat > run_core_dev.env <<EOF
-            SERVER_PORT=8082
-            SPRING_APPLICATION_NAME=core
-            SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
-            SPRING_DATASOURCE_USERNAME=me
-            SPRING_DATASOURCE_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            SPRING_DATASOURCE_URL=jdbc:postgresql://domostroy:5432/domostroy_db
-            SPRING_DATASOURCE_DRIVERCLASSNAME=org.postgresql.Driver
-            SPRING_LIQUIBASE_ENABLED=true
-            SPRING_JPA_SHOWSQL=true
-            YANDEX_CLOUD_STORAGE_ACCESSKEY=${{ secrets.YC_ACCESSKEY }}
-            YANDEX_CLOUD_STORAGE_SECRETKEY=${{ secrets.YC_SECRETKEY }}
-            YANDEX_CLOUD_STORAGE_REGION=ru-central1
-            YANDEX_CLOUD_STORAGE_ENDPOINT=https://storage.yandexcloud.net
-            YANDEX_CLOUD_STORAGE_BUCKET=domostroy
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_EXPIRATION=360
-            JWT_STRENGTH=10
-            EOF
-            cat > run_gateway_dev.env <<EOF
-            SERVER_PORT=8080
-            SPRING_APPLICATION_NAME=gateway
-            SPRING_SERVLET_MULTIPART_ENABLED=true
-            SPRING_PROFILES_ACTIVE=dev
-            SPRING_CLOUD_GATEWAY_ENABLED=true
-            SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_ORIGINS=*
-            SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
-            SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_HEADERS=*
-            SPRING_CLOUD_GATEWAY_HTTPCLIENT_CONNECT_TIMEOUT=10000
-            SPRING_CLOUD_GATEWAY_HTTPCLIENT_RESPONSE_TIMEOUT=600000
-            SPRING_CLOUD_GATEWAY_ROUTES_0_ID=auth
-            SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://auth:8081
-            SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0=Path=/auth/**
-            SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0=RewritePath=/auth/(?<path>.*),/$\{path}
-            SPRING_CLOUD_GATEWAY_ROUTES_1_ID=openapi
-            SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://gateway:8080
-            SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0=Path=/v3/api-docs/**
-            SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0=RewritePath=/v3/api-docs/(?<path>.*),/$\{path}/v3/api-docs
-            SPRING_CLOUD_GATEWAY_ROUTES_2_ID=notifications
-            SPRING_CLOUD_GATEWAY_ROUTES_2_URI=http://notifications:8083
-            SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0=Path=/notifications/**
-            SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0=RewritePath=/notifications/(?<path>.*),/$\{path}
-            SPRING_CLOUD_GATEWAY_ROUTES_3_ID=core
-            SPRING_CLOUD_GATEWAY_ROUTES_3_URI=http://core:8082
-            SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/core/**
-            SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=RewritePath=/core/(?<path>.*),/$\{path}
-            MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus
-            SPRINGDOC_CACHE_DISABLED=true
-            SPRINGDOC_SWAGGER_UI_USE_ROOT_PATH=true
-            SPRINGDOC_API_DOCS_VERSION=openapi_3_1
-            EOF
-            cat > run_notifications_dev.env <<EOF
-            SERVER_PORT=8083
-            SPRING_APPLICATION_NAME=notifications
-            SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
-            SPRING_MAIL_HOST=smtp.gmail.com
-            SPRING_MAIL_PORT=587
-            SPRING_MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-            SPRING_MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-            SPRING_MAIL_PROTOCOL=smtp
-            SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
-            SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
-            SPRING_RABBITMQ_HOST=rabbitmq
-            SPRING_RABBITMQ_USERNAME=admin
-            SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
-            SPRING_RABBITMQ_PORT=5672
-            SPRING_RABBITMQ_LISTENER_SIMPLE_DEFAULTREQUEUEREJECTED=false
-            EOF
-
-            echo "::group::Pull & restart services"
-            sudo docker login "$REGISTRY" --username oauth --password "$YC_IAM_TOKEN"
-            sudo docker compose -f docker-compose-dev.yml pull
-            sudo docker compose -f docker-compose-dev.yml up --build -d --remove-orphans
-            echo "::endgroup::"
+          sudo tee run_core_dev.env > /dev/null <<EOF
+          SERVER_PORT=8082
+          SPRING_APPLICATION_NAME=core
+          SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
+          SPRING_DATASOURCE_USERNAME=me
+          SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+          SPRING_DATASOURCE_URL=jdbc:postgresql://domostroy:5432/domostroy_db
+          SPRING_DATASOURCE_DRIVERCLASSNAME=org.postgresql.Driver
+          SPRING_LIQUIBASE_ENABLED=true
+          SPRING_JPA_SHOWSQL=true
+          YANDEX_CLOUD_STORAGE_ACCESSKEY=${YC_ACCESSKEY}
+          YANDEX_CLOUD_STORAGE_SECRETKEY=${YC_SECRETKEY}
+          YANDEX_CLOUD_STORAGE_REGION=ru-central1
+          YANDEX_CLOUD_STORAGE_ENDPOINT=https://storage.yandexcloud.net
+          YANDEX_CLOUD_STORAGE_BUCKET=domostroy
+          JWT_SECRET=${JWT_SECRET}
+          JWT_EXPIRATION=360
+          JWT_STRENGTH=10
+          EOF
+        
+          sudo tee run_gateway_dev.env > /dev/null <<EOF
+          SERVER_PORT=8080
+          SPRING_APPLICATION_NAME=gateway
+          SPRING_SERVLET_MULTIPART_ENABLED=true
+          SPRING_PROFILES_ACTIVE=dev
+          SPRING_CLOUD_GATEWAY_ENABLED=true
+          SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_ORIGINS=*
+          SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
+          SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_HEADERS=*
+          SPRING_CLOUD_GATEWAY_HTTPCLIENT_CONNECT_TIMEOUT=10000
+          SPRING_CLOUD_GATEWAY_HTTPCLIENT_RESPONSE_TIMEOUT=600000
+          SPRING_CLOUD_GATEWAY_ROUTES_0_ID=auth
+          SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://auth:8081
+          SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0=Path=/auth/**
+          SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0=RewritePath=/auth/(?<path>.*),/${path}
+          SPRING_CLOUD_GATEWAY_ROUTES_1_ID=openapi
+          SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://gateway:8080
+          SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0=Path=/v3/api-docs/**
+          SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0=RewritePath=/v3/api-docs/(?<path>.*),/${path}/v3/api-docs
+          SPRING_CLOUD_GATEWAY_ROUTES_2_ID=notifications
+          SPRING_CLOUD_GATEWAY_ROUTES_2_URI=http://notifications:8083
+          SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0=Path=/notifications/**
+          SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0=RewritePath=/notifications/(?<path>.*),/${path}
+          SPRING_CLOUD_GATEWAY_ROUTES_3_ID=core
+          SPRING_CLOUD_GATEWAY_ROUTES_3_URI=http://core:8082
+          SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/core/**
+          SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=RewritePath=/core/(?<path>.*),/${path}
+          MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus
+          SPRINGDOC_CACHE_DISABLED=true
+          SPRINGDOC_SWAGGER_UI_USE_ROOT_PATH=true
+          SPRINGDOC_API_DOCS_VERSION=openapi_3_1
+          EOF
+        
+          sudo tee run_notifications_dev.env > /dev/null <<EOF
+          SERVER_PORT=8083
+          SPRING_APPLICATION_NAME=notifications
+          SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
+          SPRING_MAIL_HOST=smtp.gmail.com
+          SPRING_MAIL_PORT=587
+          SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+          SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+          SPRING_MAIL_PROTOCOL=smtp
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+          SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+          SPRING_RABBITMQ_HOST=rabbitmq
+          SPRING_RABBITMQ_USERNAME=admin
+          SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+          SPRING_RABBITMQ_PORT=5672
+          SPRING_RABBITMQ_LISTENER_SIMPLE_DEFAULTREQUEUEREJECTED=false
+          EOF
+        
+          echo "::group::Pull & restart services"
+          sudo docker login "$REGISTRY" --username oauth --password "$YC_IAM_TOKEN"
+          sudo docker compose -f docker-compose-dev.yml pull
+          sudo docker compose -f docker-compose-dev.yml up --build -d --remove-orphans
+          echo "::endgroup::"
           REMOTE
   
   
