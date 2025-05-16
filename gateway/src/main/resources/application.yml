@@ -76,3 +76,61 @@ spring:
   config:
     activate:
       on-profile: dev
+  cloud:
+    gateway:
+      enabled: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - '*'
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - '*'
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 600s
+      routes:
+        - id: auth
+          uri: http://auth:8081
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<path>.*), /$\{path}
+        - id: openapi
+          uri: http://gateway:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+        - id: notifications
+          uri: http://notifications:8083
+          predicates:
+            - Path=/notifications/**
+          filters:
+            - RewritePath=/notifications/(?<path>.*), /$\{path}
+        - id: core
+          uri: http://core:8082
+          predicates:
+            - Path=/core/**
+          filters:
+            - RewritePath=/core/(?<path>.*), /$\{path}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
+springdoc:
+  cache:
+    disabled: true
+  swagger-ui:
+    use-root-path: true
+  api-docs:
+    version: openapi_3_1

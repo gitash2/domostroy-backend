@@ -229,38 +229,6 @@ jobs:
           JWT_STRENGTH=10
           EOF
         
-          sudo tee run_gateway_dev.env > /dev/null <<EOF
-          SERVER_PORT=8080
-          SPRING_APPLICATION_NAME=gateway
-          SPRING_SERVLET_MULTIPART_ENABLED=true
-          SPRING_PROFILES_ACTIVE=dev
-          SPRING_CLOUD_GATEWAY_ENABLED=true
-          SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_ORIGINS=*
-          SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
-          SPRING_CLOUD_GATEWAY_GLOBALCORS_CORS_CONFIGURATIONS___ALLOWED_HEADERS=*
-          SPRING_CLOUD_GATEWAY_HTTPCLIENT_CONNECT_TIMEOUT=10000
-          SPRING_CLOUD_GATEWAY_HTTPCLIENT_RESPONSE_TIMEOUT=600000
-          SPRING_CLOUD_GATEWAY_ROUTES_0_ID=auth
-          SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://auth:8081
-          SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0=Path=/auth/**
-          SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0=RewritePath=/auth/(?<path>.*),/${path}
-          SPRING_CLOUD_GATEWAY_ROUTES_1_ID=openapi
-          SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://gateway:8080
-          SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0=Path=/v3/api-docs/**
-          SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0=RewritePath=/v3/api-docs/(?<path>.*),/${path}/v3/api-docs
-          SPRING_CLOUD_GATEWAY_ROUTES_2_ID=notifications
-          SPRING_CLOUD_GATEWAY_ROUTES_2_URI=http://notifications:8083
-          SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0=Path=/notifications/**
-          SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0=RewritePath=/notifications/(?<path>.*),/${path}
-          SPRING_CLOUD_GATEWAY_ROUTES_3_ID=core
-          SPRING_CLOUD_GATEWAY_ROUTES_3_URI=http://core:8082
-          SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/core/**
-          SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=RewritePath=/core/(?<path>.*),/${path}
-          MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus
-          SPRINGDOC_SWAGGER_UI_USE_ROOT_PATH=true
-          SPRINGDOC_API_DOCS_VERSION=openapi_3_1
-          EOF
-        
           sudo tee run_notifications_dev.env > /dev/null <<EOF
           SERVER_PORT=8083
           SPRING_APPLICATION_NAME=notifications
