@@ -282,7 +282,10 @@ jobs:
           echo "::group::Pull & restart services"
           sudo docker login "$REGISTRY" --username oauth --password "$YC_IAM_TOKEN"
           sudo docker compose -f docker-compose-dev.yml pull
-          sudo docker compose -f docker-compose-dev.yml up --build -d --remove-orphans
+          sudo docker image prune -af      
+          sudo docker container prune -f   
+  
+          sudo docker compose -f docker-compose-dev.yml up -d --force-recreate --remove-orphans
           echo "::endgroup::"
           REMOTE
   

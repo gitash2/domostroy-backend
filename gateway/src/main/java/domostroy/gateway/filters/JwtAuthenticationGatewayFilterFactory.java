@@ -62,6 +62,8 @@ public class JwtAuthenticationGatewayFilterFactory extends AbstractGatewayFilter
             return "http://localhost:8081/auth/validate";
         } else if (Arrays.asList(env.getActiveProfiles()).contains("prod")) {
             return "http://changeLaterToTheHostName:8081/auth/validate";
+        } else if (Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+            return "http://auth:8081/auth/validate";
         }
         throw new IllegalStateException("No valid profile found. Current profiles: "
                 + Arrays.toString(env.getActiveProfiles()));
