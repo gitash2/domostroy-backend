@@ -91,7 +91,6 @@ jobs:
             SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/core/**
             SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=RewritePath=/core/(?<path>.*),/$\{path}
             MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus
-            SPRINGDOC_CACHE_DISABLED=true
             SPRINGDOC_SWAGGER_UI_USE_ROOT_PATH=true
             SPRINGDOC_API_DOCS_VERSION=openapi_3_1
             EOF
@@ -170,6 +169,9 @@ jobs:
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          YC_ACCESSKEY: ${{ secrets.YC_ACCESSKEY }}
+          YC_SECRETKEY: ${{ secrets.YC_SECRETKEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           echo "${{ secrets.YC_SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
@@ -255,7 +257,6 @@ jobs:
           SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/core/**
           SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=RewritePath=/core/(?<path>.*),/${path}
           MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus
-          SPRINGDOC_CACHE_DISABLED=true
           SPRINGDOC_SWAGGER_UI_USE_ROOT_PATH=true
           SPRINGDOC_API_DOCS_VERSION=openapi_3_1
           EOF
