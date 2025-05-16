@@ -271,9 +271,9 @@ jobs:
             EOF
 
             echo "::group::Pull & restart services"
-            docker login "$REGISTRY" --username oauth --password "$YC_IAM_TOKEN"
-            docker compose pull
-            docker compose -f docker-compose-dev.yml up -d --remove-orphans
+            sudo docker login "$REGISTRY" --username oauth --password "$YC_IAM_TOKEN"
+            sudo docker compose -f docker-compose-dev.yml pull
+            sudo docker compose -f docker-compose-dev.yml up --build -d --remove-orphans
             echo "::endgroup::"
           REMOTE
   
