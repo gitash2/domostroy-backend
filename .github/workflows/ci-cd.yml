@@ -179,8 +179,8 @@ jobs:
             expect eof
           EOF
 
-          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<'REMOTE'
-            cd /domostroy-backend
+          ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<REMOTE
+            cd ~/domostroy-backend
 
             echo "::group::Create env files on VM"
             cat > run_auth_dev.env <<EOF
