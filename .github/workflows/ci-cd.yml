@@ -191,7 +191,7 @@ jobs:
           sudo tee run_auth_dev.env > /dev/null <<EOF
           SERVER_PORT=8081
           SPRING_APPLICATION_NAME=auth
-          SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
+          SPRING_PROFILES_ACTIVE=dev
           SPRING_DATASOURCE_USERNAME=me
           SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
           SPRING_DATASOURCE_URL=jdbc:postgresql://domostroy:5432/domostroy_db
@@ -210,7 +210,7 @@ jobs:
           sudo tee run_core_dev.env > /dev/null <<EOF
           SERVER_PORT=8082
           SPRING_APPLICATION_NAME=core
-          SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
+          SPRING_PROFILES_ACTIVE=dev
           SPRING_DATASOURCE_USERNAME=me
           SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
           SPRING_DATASOURCE_URL=jdbc:postgresql://domostroy:5432/domostroy_db
@@ -263,7 +263,7 @@ jobs:
           sudo tee run_notifications_dev.env > /dev/null <<EOF
           SERVER_PORT=8083
           SPRING_APPLICATION_NAME=notifications
-          SPRING_CONFIG_ACTIVATE_ONPROFILE=dev
+          SPRING_PROFILES_ACTIVE=dev
           SPRING_MAIL_HOST=smtp.gmail.com
           SPRING_MAIL_PORT=587
           SPRING_MAIL_USERNAME=${MAIL_USERNAME}
