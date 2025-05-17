@@ -14,7 +14,7 @@ spring:
     url: jdbc:postgresql://localhost:25431/domostroy_db
     driver-class-name: org.postgresql.Driver
   liquibase:
-    enabled: true
+    enabled: false
   jpa:
     show-sql: true
   zipkin:
@@ -64,3 +64,7 @@ jwt:
   secret: 731ecd05cfdfa62d6a85516db9ad16aed03e509fea730ab9f5685135fb3e05151254e7598112f72831af367d3b6045b5c3980b70c62aa5177bc80fd01c41eb51
   expiration: 60
   strength: 10
+
+logging:
+  level:
+    org.springframework.web.multipart: DEBUG

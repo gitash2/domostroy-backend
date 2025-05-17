@@ -8,7 +8,7 @@ import java.util.List;
 public interface CategoryRepository {
     Category save(Category aggregate);
     Category findByName(String name);
-    Category findById(Integer id);
+    CategoryProjection findById(Integer id);
     List<CategoryProjection> findAll();
     Long count();
     List<CategoryProjection> saveAll(List<CategoryProjection> categories);

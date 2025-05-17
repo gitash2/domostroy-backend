@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -23,6 +24,7 @@ public class UserService {
     public UserDTO getCurrentUserData(Long userId) {
         User user = userRepository.findById(userId);
         return new UserDTO(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -38,7 +40,8 @@ public class UserService {
                 user.getFirstName(),
                 user.getLastName(),
                 offerRepository.getMyOffersCount(user.getId()),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getPhoneNumber()
         );
     }
 
@@ -59,6 +62,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void changeUserInfo(Long userId, ChangeUserInfoDTO dto) {
         User user = userRepository.findById(userId);
         user.setFirstName(dto.firstName());

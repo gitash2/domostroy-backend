@@ -5,7 +5,7 @@ import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.CreateOffer
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.OfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.FavouriteOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.MyOfferDTO;
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.OfferInfoDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.calendar.CalendarOutput;
 import domostroy.core.adapters.adaptersInput.dto.output.offers.OfferOutput;
 import domostroy.core.application.misc.filter.SearchDTO;
 import domostroy.core.application.offers.OfferService;
@@ -19,7 +19,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -112,7 +111,19 @@ public class OfferController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addOfferToFavourites(
             @PathVariable Long offerId,
+            @RequestParam("isFavourite") boolean isFavourite,
             @AuthenticationPrincipal UserDetails user) {
-        offerService.addOfferToFavourites(offerId, user.getUsername());
+        offerService.addOfferToFavourites(offerId, user.getUsername(), isFavourite);
+    }
+
+    @GetMapping("/calendar/{offerId}")
+    public ResponseEntity<CalendarOutput> getCalendar(@PathVariable Long offerId) {
+        return ok(offerService.getCalendar(offerId));
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public void updateOffer(OfferDTO dto) {
+
     }
 }

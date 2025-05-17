@@ -28,8 +28,10 @@ public class CategoryJPARepository implements CategoryRepository {
     }
 
     @Override
-    public Category findById(Integer id) {
-        return null;
+    public CategoryProjection findById(Integer id) {
+        return categoryDAO
+                .findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Category is not found : " + id));
     }
 
     @Override

@@ -7,6 +7,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Set;
+
 @RestControllerAdvice
 public class RestExceptionHandler {
 
@@ -18,5 +20,11 @@ public class RestExceptionHandler {
     @ExceptionHandler(value = {RoleNotFoundException.class})
     public ResponseEntity<String> handleRoleNotFoundException(RoleNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(value = {UserAlreadyExistsException.class})
+    public ResponseEntity<GeneralError> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new LogicalError(Set.of(e.getLocalizedMessage())));
     }
 }

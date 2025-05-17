@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+
 public interface OfferRepository {
     OfferAggregate save(OfferAggregate aggregate);
     OfferProjection getOfferById(Long offerId);
@@ -16,4 +18,6 @@ public interface OfferRepository {
     boolean isMyOffer(Long offerId, String email);
     boolean isFavourite(Long offerId, String email);
     int getMyOffersCount(Long userId);
+    List<OfferProjection> getMyOffersIds(Long userId);
+    List<OfferProjection> findAllByIds(List<Long> offerIds);
 }

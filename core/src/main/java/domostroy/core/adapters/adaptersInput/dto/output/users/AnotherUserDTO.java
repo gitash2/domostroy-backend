@@ -7,6 +7,7 @@ public record AnotherUserDTO(
         String firstName,
         String lastName,
         Integer numOfOffers,
-        LocalDate createdAt
+        LocalDate createdAt,
+        String phoneNumber
 ) {
 }

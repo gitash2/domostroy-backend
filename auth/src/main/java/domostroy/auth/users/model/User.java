@@ -30,7 +30,7 @@ public class User implements UserDetails {
     }
 
     @Id
-    @GeneratedValue(generator = "users_seq")
+    @GeneratedValue
     private Integer id;
 
     @Column(unique = true, nullable = false)
