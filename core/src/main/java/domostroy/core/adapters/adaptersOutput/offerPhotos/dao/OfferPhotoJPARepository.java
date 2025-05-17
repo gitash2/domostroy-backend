@@ -1,6 +1,7 @@
 package domostroy.core.adapters.adaptersOutput.offerPhotos.dao;
 
 import domostroy.aggregates.offer.domain.OfferPhoto;
+import domostroy.aggregates.offer.domain.OfferPhotoPath;
 import domostroy.core.adapters.adaptersOutput.offerPhotos.projections.OfferPhotoProjection;
 import domostroy.core.application.cloudStorage.OfferPhotoRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,5 +46,20 @@ public class OfferPhotoJPARepository implements OfferPhotoRepository {
     @Override
     public List<String> findAllPhotoPathsByOfferId(Long offerId) {
         return offerPhotoDAO.findAllPhotoPathsByOfferId(offerId);
+    }
+
+    @Override
+    public String findFirstPhotoPathByOfferId(Long offerId) {
+        return offerPhotoDAO.findFirstByOfferId(offerId);
+    }
+
+    @Override
+    public List<OfferPhotoPath> findFirstPhotoPathByOfferId(List<Long> offerIds) {
+        return offerPhotoDAO.findFirstPhotoPathByOfferId(offerIds);
+    }
+
+    @Override
+    public void deleteAllPhotosByOfferId(Long offerId) {
+        offerPhotoDAO.deleteAllByOfferId(offerId);
     }
 }

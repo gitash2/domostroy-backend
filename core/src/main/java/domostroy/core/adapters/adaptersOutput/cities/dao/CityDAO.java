@@ -25,4 +25,11 @@ public interface CityDAO extends JpaRepository<CityProjection, Integer> {
     """)
     List<CityProjection> findByMatch(String city);
 
+    @Query("""
+        select c
+        from CityProjection c
+        where c.id in (:ids)
+    """)
+    List<CityProjection> findAllByIds(List<Integer> ids);
+
 }

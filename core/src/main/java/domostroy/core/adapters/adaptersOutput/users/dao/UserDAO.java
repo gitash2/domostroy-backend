@@ -11,10 +11,9 @@ public interface UserDAO extends JpaRepository<User, Long> {
     User findByEmail(String email);
 
     @Query("""
-                  SELECT new domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.LessorInfo(
-                  u.id, u.firstName)
+                  SELECT u
                   FROM User u
                   WHERE u.id IN :ids
             """)
-    List<LessorInfo> findAllByIds(List<Long> ids);
+    List<User> findAllByIds(List<Long> ids);
 }

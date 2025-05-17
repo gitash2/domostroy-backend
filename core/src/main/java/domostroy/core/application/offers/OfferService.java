@@ -9,6 +9,8 @@ import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.OfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.FavouriteOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.MyOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.OfferInfoDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.calendar.CalendarDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.calendar.CalendarOutput;
 import domostroy.core.adapters.adaptersInput.dto.output.offers.OfferOutput;
 import domostroy.core.adapters.adaptersOutput.offerCalendar.projections.OfferCalendarProjection;
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
@@ -20,6 +22,7 @@ import domostroy.core.application.cloudStorage.config.YandexCloudProperties;
 import domostroy.core.application.misc.filter.FilterSpecificationBuilder;
 import domostroy.core.application.misc.filter.SearchDTO;
 import domostroy.core.application.offerCalendar.OfferCalendarRepository;
+import domostroy.core.application.rentRequest.RentRequestRepository;
 import domostroy.core.application.users.UserRepository;
 import domostroy.core.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +39,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,6 +56,7 @@ public class OfferService {
     private final YandexCloudProperties yandexCloudProperties;
     private final OfferCalendarRepository offerCalendarRepository;
     private final CityRepository cityRepository;
+    private final RentRequestRepository rentRequestRepository;
     private final String OFFERS_PATH = "offerPhotos";
 
     @Transactional
@@ -133,9 +137,13 @@ public class OfferService {
     @Transactional
     public void deleteOffer(Long offerId) {
         List<String> paths = offerPhotoRepository.findAllPhotoPathsByOfferId(offerId);
-        fileStorageService.deleteFiles(paths);
+        offerPhotoRepository.deleteAllPhotosByOfferId(offerId);
         offerCalendarRepository.deleteAllByOfferId(offerId);
+        rentRequestRepository.deleteAllByOfferId(offerId);
         offerRepository.deleteOffer(offerId);
+        //TODO
+        //FIXME delete RentRequests, RentRequestDates, Favourites relations fuck this
+        fileStorageService.deleteFiles(paths);
     }
 
 
@@ -185,16 +193,17 @@ public class OfferService {
     }
 
     @Transactional
-    public void addOfferToFavourites(Long offerId, String email) {
+    public void addOfferToFavourites(Long offerId, String email, boolean isFavourite) {
         User user = userRepository.findByEmail(email);
         OfferProjection offer = offerRepository.getOfferById(offerId);
         if (offer.getUserId().equals(user.getId())) {
             return;
         }
-        if (offerRepository.isFavourite(offerId, email)) {
-            user.getFavourites().remove(offer);
+        Set<OfferProjection> favourites = user.getFavourites();
+        if (isFavourite) {
+            favourites.add(offer);
         } else {
-            user.getFavourites().add(offer);
+            favourites.remove(offer);
         }
         userRepository.save(user);
     }
@@ -235,11 +244,20 @@ public class OfferService {
                             proj.getPrice(),
                             proj.getCurrency(),
                             fileStorageService.getPresignedUrl(firstPath),
-                            cityRepository.findById(proj.getCityId()),
+                            cityRepository.findById(proj.getCityId()).getName(),
                             isFav
                     );
                 }).toList();
 
         return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
+    }
+
+    public CalendarOutput getCalendar(Long offerId) {
+        return new CalendarOutput(offerCalendarRepository.findOfferDates(offerId).stream().map(
+                it -> new CalendarDTO(
+                        it.getDate(),
+                        it.isBooked()
+                )
+        ).collect(Collectors.toList()));
     }
 }

@@ -36,9 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/offers/search",
                                 "/user/{userId}",
-                                "/city/popular",
-                                "/city",
-                                "/category",
+                                "/city/**",
+                                "/category/**",
                                 "/offers/{offerId}").permitAll()
                         .anyRequest().authenticated()
                 )

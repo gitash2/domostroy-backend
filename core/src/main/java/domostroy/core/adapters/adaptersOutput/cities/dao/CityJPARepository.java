@@ -23,10 +23,10 @@ public class CityJPARepository implements CityRepository {
     }
 
     @Override
-    public String findById(Integer cityId) {
+    public CityProjection findById(Integer cityId) {
         CityProjection city = cityDAO.findById(cityId)
                 .orElseThrow(() -> new ObjectNotFoundException("City not found, id: " + cityId));
-        return city.getName();
+        return city;
     }
 
     @Override
@@ -37,6 +37,11 @@ public class CityJPARepository implements CityRepository {
     @Override
     public List<CityProjection> findByMatch(String city) {
         return cityDAO.findByMatch(city);
+    }
+
+    @Override
+    public List<CityProjection> findAllByIds(List<Integer> ids) {
+        return cityDAO.findAllById(ids);
     }
 
 

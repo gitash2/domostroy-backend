@@ -5,6 +5,7 @@ import domostroy.auth.dto.ConfirmRequest;
 import domostroy.auth.dto.SignUpRequest;
 import domostroy.auth.dto.VerificationData;
 import domostroy.auth.exceptions.RoleNotFoundException;
+import domostroy.auth.exceptions.UserAlreadyExistsException;
 import domostroy.auth.users.model.Role;
 import domostroy.auth.users.model.RoleValue;
 import domostroy.auth.users.model.User;
@@ -42,6 +43,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void signUp(SignUpRequest req) {
+        if (userRepository.existsByEmail(req.email())) {
+            throw new UserAlreadyExistsException("User already exists");
+        }
         Integer randomNumber = new SecureRandom().nextInt(900000) + 100000;
         String confirmationCode = String.format("%06d", randomNumber);
         verificationCodeService.saveVerificationCode(req.email(),

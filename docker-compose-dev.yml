@@ -27,13 +27,14 @@ services:
       - REDIS_USER_PASSWORD=admin
     ports:
       - "6379:6379"
-    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    command: [ "redis-server", "--save", "60", "1", "--loglevel", "warning" ]
     volumes:
       - ./redisdata:/data
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     restart: always
     networks:
       - mynet
+
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -74,7 +75,7 @@ services:
       - redis
       - rabbitmq
     ports:
-      - "8082:8082"
+      - "8081:8081"
     networks:
       - mynet
   core:
@@ -84,7 +85,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8081:8081"
+      - "8082:8082"
     networks:
       - mynet
   notifications:
@@ -99,8 +100,6 @@ services:
       - mynet
   gateway:
     image: cr.yandex/crpfl8pv8kjt97qeeh3s/gateway:latest
-    env_file:
-      - run_gateway_dev.env
     depends_on:
       - core
       - auth

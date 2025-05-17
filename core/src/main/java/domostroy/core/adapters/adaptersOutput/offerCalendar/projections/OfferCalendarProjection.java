@@ -1,5 +1,6 @@
 package domostroy.core.adapters.adaptersOutput.offerCalendar.projections;
 
+import domostroy.core.adapters.adaptersOutput.rentRequest.projections.RentRequestProjection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Table(name = "offer_calendar")
 @Entity

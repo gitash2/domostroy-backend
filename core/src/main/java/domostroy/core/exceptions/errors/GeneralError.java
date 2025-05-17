@@ -26,7 +26,7 @@ public abstract sealed class GeneralError permits DBError, ValidationError, Inte
     }
 
     protected GeneralError() {
-        this("Ошибка сервера", Set.of("Unknown"));
+        this("Server error", Set.of("Unknown"));
     }
 
 }

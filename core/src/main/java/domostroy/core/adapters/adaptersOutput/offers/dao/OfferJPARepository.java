@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class OfferJPARepository implements OfferRepository {
@@ -49,7 +51,7 @@ public class OfferJPARepository implements OfferRepository {
 
     @Override
     public boolean isMyOffer(Long offerId, String email) {
-        return false;
+        return offerDAO.isMyOffer(offerId, email);
     }
 
     @Override
@@ -60,5 +62,15 @@ public class OfferJPARepository implements OfferRepository {
     @Override
     public int getMyOffersCount(Long userId) {
         return offerDAO.getMyOffersCount(userId);
+    }
+
+    @Override
+    public List<OfferProjection> getMyOffersIds(Long userId) {
+        return offerDAO.getMyOffersIds(userId);
+    }
+
+    @Override
+    public List<OfferProjection> findAllByIds(List<Long> offerIds) {
+        return offerDAO.findAllById(offerIds);
     }
 }

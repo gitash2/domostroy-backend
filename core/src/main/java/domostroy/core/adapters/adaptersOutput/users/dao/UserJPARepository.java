@@ -37,7 +37,7 @@ public class UserJPARepository implements UserRepository {
     }
 
     @Override
-    public List<LessorInfo> findAllByIds(List<Long> ids) {
+    public List<User> findAllByIds(List<Long> ids) {
         return userDAO.findAllByIds(ids);
     }
 }

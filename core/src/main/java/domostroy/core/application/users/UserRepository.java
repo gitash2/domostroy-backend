@@ -12,5 +12,5 @@ public interface UserRepository {
     User findByEmail(String email);
     void deleteById(Long id);
     void save(User user);
-    List<LessorInfo> findAllByIds(List<Long> ids);
+    List<User> findAllByIds(List<Long> ids);
 }
