@@ -34,24 +34,6 @@ services:
     restart: always
     networks:
       - mynet
-
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus:/etc/prometheus
-    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
-    networks:
-      - mynet
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    networks:
-      - mynet
   postgres:
     image: postgres:15-alpine
     container_name: domostroy
