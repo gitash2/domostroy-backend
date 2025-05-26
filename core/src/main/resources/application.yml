@@ -87,3 +87,6 @@ jwt:
 logging:
   level:
     org.springframework.web.multipart: DEBUG
+ai:
+  moderation:
+    key: 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

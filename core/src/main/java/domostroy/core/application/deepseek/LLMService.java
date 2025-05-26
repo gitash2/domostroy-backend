@@ -44,7 +44,7 @@ public class LLMService {
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response -> {
-                    if (response.statusCode().value() == 429) {
+                    if (response.statusCode().value() == 429 || response.statusCode().value() == 401 || response.statusCode().value() == 403) {
                         log.warn("429 Too Many Requests — пропускаем модерацию");
                         return Mono.empty();
                     }
