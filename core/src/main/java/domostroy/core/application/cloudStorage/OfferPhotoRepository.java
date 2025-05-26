@@ -15,6 +15,7 @@ public interface OfferPhotoRepository {
     String findFirstPhotoPathByOfferId(Long offerId);
     List<OfferPhotoPath> findFirstPhotoPathByOfferId(List<Long> offerIds);
     void deleteAllPhotosByOfferId(Long offerId);
+    List<String> findAllPhotosIdsNotInList(List<Long> photoIds, Long offerId);
     void deleteAllPhotosNotInList(List<Long> photoIds, Long offerId);
 
 

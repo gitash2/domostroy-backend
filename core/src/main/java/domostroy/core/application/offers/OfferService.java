@@ -141,11 +141,15 @@ public class OfferService {
         offer.setTitle(dto.title());
         offer.setCityId(dto.cityId());
 
-        List<OfferPhotoProjection> existingPhotos = offerPhotoRepository.findAllByOfferId(dto.id());
+        List<String> photoPathsNotInList = offerPhotoRepository.findAllPhotosIdsNotInList(dto.photoIds(), offer.getId());
         offerPhotoRepository.deleteAllPhotosNotInList(dto.photoIds(), offer.getId());
 
         OfferProjection savedOffer = offerRepository.save(offer);
 
+        if (files == null) {
+            fileStorageService.deleteFiles(photoPathsNotInList);
+            return;
+        }
         List<String> paths = files.stream()
                 .map(file -> constructFileStoragePath(savedOffer))
                 .toList();
@@ -171,11 +175,7 @@ public class OfferService {
         offerPhotoRepository.saveAll(offerPhotos);
 
         fileStorageService.saveAllFiles(photos, paths);
-
-        fileStorageService.deleteFiles(existingPhotos
-                .stream()
-                .map(OfferPhotoProjection::getImagePath)
-                .collect(Collectors.toList()));
+        fileStorageService.deleteFiles(photoPathsNotInList);
     }
 
     public OfferDTO getOfferData(UserDetails user, Long offerId) {

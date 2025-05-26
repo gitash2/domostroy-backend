@@ -63,6 +63,11 @@ public class OfferPhotoJPARepository implements OfferPhotoRepository {
     }
 
     @Override
+    public List<String> findAllPhotosIdsNotInList(List<Long> photoIds, Long offerId) {
+        return offerPhotoDAO.findAllPhotosIdsNotInList(photoIds, offerId);
+    }
+
+    @Override
     public void deleteAllPhotosNotInList(List<Long> photoIds, Long offerId) {
         offerPhotoDAO.deleteAllPhotosNotInList(photoIds, offerId);
     }

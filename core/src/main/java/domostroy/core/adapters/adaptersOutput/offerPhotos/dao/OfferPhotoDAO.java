@@ -59,4 +59,10 @@ public interface OfferPhotoDAO extends JpaRepository<OfferPhotoProjection, Long>
         where o.offerId in (:offerIds)
     """)
     List<String> findAllPhotosPathsByOfferIds(List<Long> offerIds);
+
+    @Query("""
+        select p.imagePath from OfferPhotoProjection p
+        where p.offerId = :offerId and p.id not in (:photoIds)
+    """)
+    List<String> findAllPhotosIdsNotInList(List<Long> photoIds, Long offerId);
 }
