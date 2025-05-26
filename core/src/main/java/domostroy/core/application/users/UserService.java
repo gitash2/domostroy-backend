@@ -116,7 +116,7 @@ public class UserService {
         List<AdminUserDTO> dtoList = filteredUsers.stream()
                 .map(it -> new AdminUserDTO(
                         it.getId(),
-                        (it.getFirstName() + " " + it.getLastName()).trim(),
+                        (it.getFirstName() + " " + (it.getLastName() != null ? it.getLastName() : "")).trim(),
                         it.getEmail(),
                         it.getPhoneNumber(),
                         userIdToNumberOfOffers.getOrDefault(it.getId(), 0),
