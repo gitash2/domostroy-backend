@@ -13,8 +13,8 @@ public enum RoleValue {
         this.ruValue = ruValue;
     }
 
-    public static final String C_ADMIN = "'ADMIN'";
-    public static final String C_USER = "'USER'";
+    public static final String C_ADMIN = "ADMIN";
+    public static final String C_USER = "USER";
 
 }
 

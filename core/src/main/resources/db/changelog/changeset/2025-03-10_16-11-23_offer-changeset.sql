@@ -47,7 +47,7 @@ create table if not exists offer_calendar
     id          bigint primary key,
     date        date                            not null,
     offer_id    bigint references offers (id)   not null,
-    is_booked    boolean not null default false not null
+    is_booked   boolean  default false not null
 );
 
 create sequence if not exists offer_calendar_seq
@@ -58,8 +58,7 @@ create sequence if not exists offer_calendar_seq
 create table rent_request(
     id bigint primary key,
     offer_id bigint references offers(id),
-    user_id bigint references users(id),
-    is_approved boolean not null default false
+    user_id bigint references users(id)
 );
 
 create sequence if not exists rent_request_seq

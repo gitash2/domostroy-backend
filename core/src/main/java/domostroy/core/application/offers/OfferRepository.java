@@ -1,6 +1,5 @@
 package domostroy.core.application.offers;
 
-import domostroy.aggregates.offer.domain.OfferAggregate;
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public interface OfferRepository {
-    OfferAggregate save(OfferAggregate aggregate);
     OfferProjection getOfferById(Long offerId);
     void deleteOffer(Long offerId);
     Page<OfferProjection> getMyOffers(Long userId, Pageable pageable);
@@ -20,4 +18,6 @@ public interface OfferRepository {
     int getMyOffersCount(Long userId);
     List<OfferProjection> getMyOffersIds(Long userId);
     List<OfferProjection> findAllByIds(List<Long> offerIds);
+    OfferProjection findById(Long offerId);
+    OfferProjection save(OfferProjection projection);
 }

@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -60,6 +62,38 @@ public class RentRequestJPARepository implements RentRequestRepository {
     @Override
     public void deleteAllByOfferId(Long offerId) {
         rentRequestDAO.deleteAllByOfferId(offerId);
+    }
+
+    @Override
+    public List<RentRequestProjection> findAllByOfferIdAndDatesIn(Long offerId, List<LocalDate> dates) {
+        return rentRequestDAO.findAllByOfferIdAndDatesIn(offerId, dates);
+    }
+
+    @Override
+    public void deleteAll(List<RentRequestProjection> requests) {
+        rentRequestDAO.deleteAll(requests);
+    }
+
+    @Override
+    public void flush() {
+        rentRequestDAO.flush();
+    }
+
+    @Override
+    @Transactional
+    public void deleteByRequestId(Long requestId) {
+        rentRequestDAO.deleteById(requestId);
+        rentRequestDAO.deleteRentRequestDatesByRentRequestId(requestId);
+    }
+
+    @Override
+    public void saveAll(List<RentRequestProjection> requests) {
+        rentRequestDAO.saveAll(requests);
+    }
+
+    @Override
+    public boolean isMyRentRequest(Long requestId, Long userId) {
+        return rentRequestDAO.isMyRentRequest(requestId, userId);
     }
 
 

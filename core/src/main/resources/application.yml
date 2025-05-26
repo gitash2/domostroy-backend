@@ -14,7 +14,7 @@ spring:
     url: jdbc:postgresql://localhost:25431/domostroy_db
     driver-class-name: org.postgresql.Driver
   liquibase:
-    enabled: false
+    enabled: true
   jpa:
     show-sql: true
   zipkin:
@@ -23,6 +23,14 @@ spring:
     sleuth:
       sampler:
         probability: 1.0
+  rabbitmq:
+    host: localhost
+    username: admin
+    password: admin
+    port: 5672
+    listener:
+      simple:
+        default-requeue-rejected: false
 
 yandex:
   cloud:
@@ -36,6 +44,9 @@ jwt:
   secret: 731ecd05cfdfa62d6a85516db9ad16aed03e509fea730ab9f5685135fb3e05151254e7598112f72831af367d3b6045b5c3980b70c62aa5177bc80fd01c41eb51
   expiration: 60
   strength: 10
+ai:
+  moderation:
+    key: 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
 
 ---
 spring:
@@ -51,6 +62,14 @@ spring:
     enabled: true
   jpa:
     show-sql: true
+  rabbitmq:
+    host: rabbitmq
+    username: admin
+    password: admin
+    port: 5672
+    listener:
+      simple:
+        default-requeue-rejected: false
 
 yandex:
   cloud:

@@ -1,8 +1,6 @@
 package domostroy.core.adapters.adaptersInput.api.mobile;
 
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.CreateOfferRequest;
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.CreateOfferResponse;
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.OfferDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.*;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.FavouriteOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.MyOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.calendar.CalendarOutput;
@@ -123,7 +121,15 @@ public class OfferController {
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public void updateOffer(OfferDTO dto) {
+    public void updateOffer(@RequestPart(name = "metadata") UpdateOfferDTO dto,
+                            @RequestPart(name = "file") @Nullable Collection<MultipartFile> photos,
+                            @AuthenticationPrincipal UserDetails user) {
+        offerService.update(dto, photos, user);
+    }
 
+    @PostMapping("/calendar")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateAvailableDates(@RequestBody UpdateAvailableDatesDTO dto) {
+        offerService.updateAvailableDates(dto);
     }
 }
