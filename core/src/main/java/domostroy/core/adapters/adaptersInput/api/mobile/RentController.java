@@ -72,8 +72,9 @@ public class RentController {
         return rentService.getRequestInfo(requestId, false);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{rentRequestId}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public void delete(@AuthenticationPrincipal UserDetails user, @PathVariable Long rentRequestId) {
+        rentService.deleteRequest(user, rentRequestId);
     }
 }

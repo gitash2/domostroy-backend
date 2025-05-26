@@ -42,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
         if (request.getRequestURI().contains("api-docs") || request.getRequestURI().contains("swagger-ui")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         String authHeader = request.getHeader(Constants.AUTH_HEADER_KEY);
@@ -55,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = jwtService.extractUsername(bearerToken.getToken());
 
-        if (!username.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null &&!username.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -65,6 +66,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     null,
                     userDetails.getAuthorities()
             );
+            log.info("Authorities: {}", userDetails.getAuthorities());
+
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             context.setAuthentication(authToken);

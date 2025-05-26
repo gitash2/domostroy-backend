@@ -5,6 +5,7 @@ import domostroy.core.adapters.adaptersOutput.rentRequest.projections.RentReques
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface RentRequestRepository {
@@ -15,4 +16,10 @@ public interface RentRequestRepository {
     void changeRequestStatus(Long requestId, RentRequestStatus status);
     RentRequestProjection findById(Long id);
     void deleteAllByOfferId(Long offerId);
+    List<RentRequestProjection> findAllByOfferIdAndDatesIn(Long offerId, List<LocalDate> dates);
+    void deleteAll(List<RentRequestProjection> requests);
+    void flush();
+    void deleteByRequestId(Long requestId);
+    void saveAll(List<RentRequestProjection> requests);
+    boolean isMyRentRequest(Long requestId, Long userId);
 }

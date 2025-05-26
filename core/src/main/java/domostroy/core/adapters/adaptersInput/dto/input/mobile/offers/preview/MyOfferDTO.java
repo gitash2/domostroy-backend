@@ -11,6 +11,8 @@ public record MyOfferDTO(
         Double price,
         Currency currency,
         String photoUrl,
-        LocalDate createdAt
+        LocalDate createdAt,
+        boolean isBanned,
+        String banReason
 ) {
 }

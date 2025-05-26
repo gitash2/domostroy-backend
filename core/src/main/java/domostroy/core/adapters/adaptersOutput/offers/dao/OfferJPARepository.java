@@ -1,6 +1,5 @@
 package domostroy.core.adapters.adaptersOutput.offers.dao;
 
-import domostroy.aggregates.offer.domain.OfferAggregate;
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
 import domostroy.core.application.offers.OfferRepository;
 import domostroy.core.exceptions.ObjectNotFoundException;
@@ -16,12 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OfferJPARepository implements OfferRepository {
     private final OfferDAO offerDAO;
-
-    @Override
-    public OfferAggregate save(OfferAggregate aggregate) {
-        OfferProjection projection = new OfferProjection(aggregate);
-        return offerDAO.save(projection).toAggregate();
-    }
 
     @Override
     public OfferProjection getOfferById(Long offerId) {
@@ -72,5 +65,16 @@ public class OfferJPARepository implements OfferRepository {
     @Override
     public List<OfferProjection> findAllByIds(List<Long> offerIds) {
         return offerDAO.findAllById(offerIds);
+    }
+
+    @Override
+    public OfferProjection findById(Long offerId) {
+        return offerDAO.findOfferById(offerId)
+                .orElseThrow(() -> new ObjectNotFoundException("Object with id" + offerId + "is not found"));
+    }
+
+    @Override
+    public OfferProjection save(OfferProjection projection) {
+        return offerDAO.save(projection);
     }
 }

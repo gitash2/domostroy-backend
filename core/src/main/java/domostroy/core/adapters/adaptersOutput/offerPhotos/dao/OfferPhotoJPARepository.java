@@ -32,14 +32,13 @@ public class OfferPhotoJPARepository implements OfferPhotoRepository {
     }
 
     @Override
-    public List<OfferPhoto> saveAll(List<OfferPhoto> offerPhotos) {
-        List<OfferPhotoProjection> projections = offerPhotos.stream().map(OfferPhotoProjection::new).toList();
-        offerPhotoDAO.saveAll(projections);
+    public List<OfferPhotoProjection> saveAll(List<OfferPhotoProjection> offerPhotos) {
+        offerPhotoDAO.saveAll(offerPhotos);
         return offerPhotos;
     }
 
     @Override
-    public List<OfferPhoto> findAllByOfferId(Long offerId) {
+    public List<OfferPhotoProjection> findAllByOfferId(Long offerId) {
         return offerPhotoDAO.findAllByOfferId(offerId);
     }
 
@@ -61,5 +60,10 @@ public class OfferPhotoJPARepository implements OfferPhotoRepository {
     @Override
     public void deleteAllPhotosByOfferId(Long offerId) {
         offerPhotoDAO.deleteAllByOfferId(offerId);
+    }
+
+    @Override
+    public void deleteAllPhotosNotInList(List<Long> photoIds, Long offerId) {
+        offerPhotoDAO.deleteAllPhotosNotInList(photoIds, offerId);
     }
 }

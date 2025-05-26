@@ -9,12 +9,13 @@ import java.util.List;
 public interface OfferPhotoRepository {
     OfferPhoto save(OfferPhoto aggregate);
     OfferPhoto findById(Long id);
-    List<OfferPhoto> saveAll(List<OfferPhoto> offerPhotos);
-    List<OfferPhoto> findAllByOfferId(Long offerId);
+    List<OfferPhotoProjection> saveAll(List<OfferPhotoProjection> offerPhotos);
+    List<OfferPhotoProjection> findAllByOfferId(Long offerId);
     List<String> findAllPhotoPathsByOfferId(Long offerId);
     String findFirstPhotoPathByOfferId(Long offerId);
     List<OfferPhotoPath> findFirstPhotoPathByOfferId(List<Long> offerIds);
     void deleteAllPhotosByOfferId(Long offerId);
+    void deleteAllPhotosNotInList(List<Long> photoIds, Long offerId);
 
 
 }

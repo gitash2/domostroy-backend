@@ -24,47 +24,31 @@ public class FilterSpecification<T> implements Specification<T> {
                 searchCriteria.value().toString().toLowerCase(Locale.getDefault()) :
                 "";
 
+        Path<?> path = getPath(root, searchCriteria.filterKey());
+
+
+
         switch (searchCriteria.operation()) {
             case "cn": // CONTAINS
-                return cb.like(
-                        cb.lower(root.get(searchCriteria.filterKey())),
-                        "%" + lowerString + "%"
-                );
+                return cb.like(cb.lower(path.as(String.class)), "%" + lowerString + "%");
 
             case "nc": // DOES_NOT_CONTAIN
-                return cb.notLike(
-                        cb.lower(root.get(searchCriteria.filterKey())),
-                        "%" + lowerString + "%"
-                );
+                return cb.notLike(cb.lower(path.as(String.class)), "%" + lowerString + "%");
 
             case "bw": // BEGINS_WITH
-                return cb.like(
-                        cb.lower(root.get(searchCriteria.filterKey())),
-                        lowerString + "%"
-                );
+                return cb.like(cb.lower(path.as(String.class)), lowerString + "%");
 
             case "bn": // DOES_NOT_BEGIN_WITH
-                return cb.notLike(
-                        cb.lower(root.get(searchCriteria.filterKey())),
-                        lowerString + "%"
-                );
+                return cb.notLike(cb.lower(path.as(String.class)), lowerString + "%");
 
             case "ew": // ENDS_WITH
-                return cb.like(
-                        cb.lower(root.get(searchCriteria.filterKey())),
-                        "%" + lowerString
-                );
+                return cb.like(cb.lower(path.as(String.class)), "%" + lowerString);
 
             case "en": // DOES_NOT_END_WITH
-                return cb.notLike(
-                        cb.lower(root.get(searchCriteria.filterKey())),
-                        "%" + lowerString
-                );
+                return cb.notLike(cb.lower(path.as(String.class)), "%" + lowerString);
 
-            case "eq": { // EQUAL
-                Path<Object> path = root.get(searchCriteria.filterKey());
+            case "eq": {
                 Object value = searchCriteria.value();
-
                 if (value == null) {
                     return cb.isNull(path);
                 }
@@ -78,43 +62,35 @@ public class FilterSpecification<T> implements Specification<T> {
                 return cb.equal(path, convertValue(path.getJavaType(), value));
             }
 
-            case "ne": { // NOT_EQUAL
-                Path<Object> path = root.get(searchCriteria.filterKey());
-                return cb.notEqual(
-                        path,
-                        convertValue(path.getJavaType(), searchCriteria.value())
-                );
-            }
+            case "ne":
+                return cb.notEqual(path, convertValue(path.getJavaType(), searchCriteria.value()));
 
-            case "nu": // IS_NULL
-                return cb.isNull(root.get(searchCriteria.filterKey()));
+            case "nu":
+                return cb.isNull(path);
 
-            case "nn": // NOT_NULL
-                return cb.isNotNull(root.get(searchCriteria.filterKey()));
+            case "nn":
+                return cb.isNotNull(path);
 
-            case "gt": // GREATER_THAN
-                return compare(cb, root, CompareOperator.GREATER_THAN);
+            case "gt":
+                return compare(cb, (Path<Comparable>) path, CompareOperator.GREATER_THAN);
 
-            case "ge": // GREATER_THAN_EQUAL
-                return compare(cb, root, CompareOperator.GREATER_THAN_OR_EQUAL);
+            case "ge":
+                return compare(cb, (Path<Comparable>) path, CompareOperator.GREATER_THAN_OR_EQUAL);
 
-            case "lt": // LESS_THAN
-                return compare(cb, root, CompareOperator.LESS_THAN);
+            case "lt":
+                return compare(cb, (Path<Comparable>) path, CompareOperator.LESS_THAN);
 
-            case "le": // LESS_THAN_EQUAL
-                return compare(cb, root, CompareOperator.LESS_THAN_OR_EQUAL);
+            case "le":
+                return compare(cb, (Path<Comparable>) path, CompareOperator.LESS_THAN_OR_EQUAL);
+
 
             default:
                 throw new IllegalArgumentException("Operation not supported yet: " + searchCriteria.operation());
         }
     }
 
-    private Predicate compare(CriteriaBuilder cb, Root<T> root, CompareOperator operator) {
-        Path<Comparable> path = root.get(searchCriteria.filterKey());
-        Comparable value = (Comparable) convertValue(
-                path.getJavaType(),
-                searchCriteria.value()
-        );
+    private Predicate compare(CriteriaBuilder cb, Path<Comparable> path, CompareOperator operator) {
+        Comparable value = (Comparable) convertValue(path.getJavaType(), searchCriteria.value());
 
         return switch (operator) {
             case GREATER_THAN -> cb.greaterThan(path, value);
@@ -123,6 +99,19 @@ public class FilterSpecification<T> implements Specification<T> {
             case LESS_THAN_OR_EQUAL -> cb.lessThanOrEqualTo(path, value);
         };
     }
+
+    private Path<?> getPath(Root<T> root, String key) {
+        if (!key.contains(".")) {
+            return root.get(key);
+        }
+        String[] parts = key.split("\\.");
+        Path<?> path = root;
+        for (String part : parts) {
+            path = path.get(part);
+        }
+        return path;
+    }
+
 
     private Object convertValue(Class<?> targetType, Object value) {
         if (value == null) return null;

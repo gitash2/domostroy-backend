@@ -46,5 +46,11 @@ public class GlobalExceptionHandler {
                 .body(new LogicalError(Set.of(ex.getLocalizedMessage())));
     }
 
+    @ExceptionHandler(ModerationException.class)
+    public ResponseEntity<GeneralError> handleModerationException(ModerationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ValidationError(Set.of(ex.getLocalizedMessage())));
+    }
+
 
 }

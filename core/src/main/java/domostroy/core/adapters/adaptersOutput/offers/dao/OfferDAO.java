@@ -10,6 +10,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpecificationExecutor<OfferProjection>, PagingAndSortingRepository<OfferProjection, Long> {
     Page<OfferProjection> getOffersByUserId(Long userId, Pageable pageable);
@@ -66,4 +67,13 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
                             where o.userId = :userId
             """)
     List<OfferProjection> getMyOffersIds(Long userId);
+
+    Optional<OfferProjection> findOfferById(Long userId);
+
+    @Query("""
+        select o.id
+        from OfferProjection o
+        where o.userId = :userId
+    """)
+    List<Long> findAllOfferIdsByUserId(Long userId);
 }

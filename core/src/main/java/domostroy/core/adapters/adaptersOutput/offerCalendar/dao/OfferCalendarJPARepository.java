@@ -44,4 +44,12 @@ public class OfferCalendarJPARepository implements OfferCalendarRepository {
     public List<OfferCalendarProjection> findOfferDates(Long offerId) {
         return offerCalendarDAO.findOfferDatesByOfferId(offerId);
     }
+
+    @Override
+    public void deleteUnavailableDates(List<LocalDate> dates, Long offerId) {
+        LocalDate[] dateArray = dates.toArray(LocalDate[]::new);
+        offerCalendarDAO.deleteDependentRentRequests(offerId, dateArray);
+        offerCalendarDAO.deleteDatesNotInList(dates, offerId);
+        offerCalendarDAO.insertMissingDates(dateArray, offerId);
+    }
 }
