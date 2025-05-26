@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Table(name = "rent_request")
@@ -29,9 +30,9 @@ public class RentRequestProjection {
     private Long userId;
 
     @Column(nullable = false)
-    private LocalDate createdAt = LocalDate.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    private LocalDate resolvedAt;
+    private LocalDateTime resolvedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "rent_request_status")

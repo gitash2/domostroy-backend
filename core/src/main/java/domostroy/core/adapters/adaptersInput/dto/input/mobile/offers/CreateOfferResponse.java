@@ -1,7 +1,7 @@
 package domostroy.core.adapters.adaptersInput.dto.input.mobile.offers;
 
 import domostroy.aggregates.currency.Currency;
-import domostroy.aggregates.offer.domain.OfferAggregate;
+import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +15,9 @@ public record CreateOfferResponse(
         Integer cityId,
         LocalDateTime createdAt
 ) {
-    public CreateOfferResponse(OfferAggregate offer) {
-        this(offer.getOfferId(),
+    public CreateOfferResponse(OfferProjection offer) {
+        this(
+                offer.getId(),
                 offer.getTitle(),
                 offer.getDescription(),
                 offer.getCategoryId(),

@@ -8,6 +8,8 @@ public record AnotherUserDTO(
         String lastName,
         Integer numOfOffers,
         LocalDate createdAt,
-        String phoneNumber
+        String phoneNumber,
+        String role,
+        Boolean isBanned
 ) {
 }

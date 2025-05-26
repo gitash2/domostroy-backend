@@ -10,6 +10,8 @@ public record OfferInfoDTO(
         Currency currency,
         String photoUrl,
         String city,
-        Boolean isFavourite
+        Boolean isFavourite,
+        boolean isBanned,
+        String banReason
 ) {
 }

@@ -1,9 +1,9 @@
 package domostroy.core.adapters.adaptersOutput.offerPhotos.dao;
 
-import domostroy.aggregates.offer.domain.OfferPhoto;
 import domostroy.aggregates.offer.domain.OfferPhotoPath;
 import domostroy.core.adapters.adaptersOutput.offerPhotos.projections.OfferPhotoProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 public interface OfferPhotoDAO extends JpaRepository<OfferPhotoProjection, Long> {
 
 
-    List<OfferPhoto> findAllByOfferId(Long offerId);
+    List<OfferPhotoProjection> findAllByOfferId(Long offerId);
 
 
     @Query("""
@@ -44,4 +44,19 @@ public interface OfferPhotoDAO extends JpaRepository<OfferPhotoProjection, Long>
     List<OfferPhotoPath> findFirstPhotoPathByOfferId(List<Long> offerIds);
 
     void deleteAllByOfferId(Long offerId);
+
+    @Modifying
+    @Query("""
+            delete from OfferPhotoProjection o
+            where o.offerId = :offerId
+            and o.id not in (:photoIds)
+    """)
+    void deleteAllPhotosNotInList(List<Long> photoIds, Long offerId);
+
+    @Query("""
+        select o.imagePath
+        from OfferPhotoProjection o
+        where o.offerId in (:offerIds)
+    """)
+    List<String> findAllPhotosPathsByOfferIds(List<Long> offerIds);
 }

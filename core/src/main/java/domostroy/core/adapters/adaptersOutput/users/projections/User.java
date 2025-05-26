@@ -36,18 +36,20 @@ public class User implements UserDetails {
 
     private LocalDate createdAt;
 
+    private Boolean isBanned;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private RoleProjection role;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany( fetch = FetchType.LAZY)
     @JoinTable(
             name = "favourites",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "offer_id")
     )
     private Set<OfferProjection> favourites;
-
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.role.name()));

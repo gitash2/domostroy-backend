@@ -4,8 +4,7 @@ import domostroy.aggregates.currency.Currency;
 import domostroy.aggregates.offer.domain.OfferAggregate;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -18,6 +17,9 @@ import java.util.Set;
 @Table(name = "offers")
 @NoArgsConstructor
 @Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class OfferProjection {
     @Id
     @GeneratedValue
@@ -39,21 +41,18 @@ public class OfferProjection {
 
     private Integer cityId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
     private LocalDateTime createdAt;
 
-    public OfferProjection(OfferAggregate aggregate) {
-        id = aggregate.getOfferId();
-        title = aggregate.getTitle();
-        description = aggregate.getDescription();
-        price = aggregate.getPrice();
-        categoryId = aggregate.getCategoryId();
-        currency = aggregate.getCurrency();
-        cityId = aggregate.getCityId();
-        userId = aggregate.getUserId();
-        createdAt = LocalDateTime.now();
-    }
+    private boolean isBanned;
+
+    private String banReason;
 
     public OfferAggregate toAggregate() {
         return new OfferAggregate(

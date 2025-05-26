@@ -4,7 +4,7 @@ import domostroy.aggregates.currency.Currency;
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.util.List;
 
 public record OfferDTO(
         Long id,
@@ -16,11 +16,13 @@ public record OfferDTO(
         LocalDateTime createdAt,
         Integer cityId,
         Long userId,
-        Collection<String> photos,
-        boolean isFavourite
+        List<OfferPhoto> photos,
+        boolean isFavourite,
+        boolean isBanned,
+        String banReason
 
 ) {
-    public OfferDTO(OfferProjection offer, Collection<String> photos, boolean isFavourite) {
+    public OfferDTO(OfferProjection offer, List<OfferPhoto> photos, boolean isFavourite) {
         this (
                 offer.getId(),
                 offer.getTitle(),
@@ -32,7 +34,9 @@ public record OfferDTO(
                 offer.getCityId(),
                 offer.getUserId(),
                 photos,
-                isFavourite
+                isFavourite,
+                offer.isBanned(),
+                offer.getBanReason()
         );
     }
 }

@@ -13,4 +13,5 @@ public interface OfferCalendarRepository {
     boolean areDatesBooked(Set<LocalDate> dates, Long offerId);
     Set<OfferCalendarProjection> getOfferDates(Long offerId, Set<LocalDate> dates);
     List<OfferCalendarProjection> findOfferDates(Long offerId);
+    void deleteUnavailableDates(List<LocalDate> dates, Long offerId);
 }
