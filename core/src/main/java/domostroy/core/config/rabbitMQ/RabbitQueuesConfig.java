@@ -22,4 +22,9 @@ public class RabbitQueuesConfig {
     public Queue OfferResponseQueue() {
         return new Queue(RabbitMQConfigConstants.Queue.QUEUE_RESPONSE_TO_OFFER, true);
     }
+
+    @Bean
+    public Queue OfferModerationQueue() {
+        return new Queue(RabbitMQConfigConstants.Queue.QUEUE_MODERATION_OFFER, true);
+    }
 }

@@ -5,6 +5,7 @@ import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangePasswo
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangeUserInfoDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.AnotherUserDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.UserDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.users.UserNotificationFlag;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import domostroy.core.application.users.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,4 +65,10 @@ public class UserController {
             @AuthenticationPrincipal UserDetails user) {
         userService.editNotifications(user, notificationsEnabled);
     }
+
+    @GetMapping("/notificationFlag")
+    public ResponseEntity<UserNotificationFlag> getNotificationFlag(@AuthenticationPrincipal UserDetails user) {
+        return ok(userService.getUserNotificationFlag(user));
+    }
+
 }

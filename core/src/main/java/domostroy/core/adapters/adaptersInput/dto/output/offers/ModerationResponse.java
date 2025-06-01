@@ -1,14 +1,13 @@
 package domostroy.core.adapters.adaptersInput.dto.output.offers;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class ModerationResponse {
-    private boolean valid;
+    private Boolean valid;
     private String reason;
 }
 

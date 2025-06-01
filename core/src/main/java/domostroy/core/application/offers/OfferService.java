@@ -21,6 +21,7 @@ import domostroy.core.application.cloudStorage.FileStorageService;
 import domostroy.core.application.cloudStorage.OfferPhotoRepository;
 import domostroy.core.application.cloudStorage.config.YandexCloudProperties;
 import domostroy.core.application.deepseek.LLMService;
+import domostroy.core.application.deepseek.ModerationService;
 import domostroy.core.application.misc.filter.FilterSpecificationBuilder;
 import domostroy.core.application.misc.filter.SearchDTO;
 import domostroy.core.application.offerCalendar.OfferCalendarRepository;
@@ -60,17 +61,13 @@ public class OfferService {
     private final OfferCalendarRepository offerCalendarRepository;
     private final CityRepository cityRepository;
     private final RentRequestRepository rentRequestRepository;
+    private final ModerationService moderationService;
     private final LLMService llmService;
     private final String OFFERS_PATH = "offerPhotos";
 
     @Transactional
     public CreateOfferResponse createOffer(CreateOfferRequest dto, Collection<MultipartFile> files, UserDetails user) {
         User user2 = userRepository.findByEmail(user.getUsername());
-        ModerationResponse moderation = llmService.checkText(dto.title(), dto.description()).block();
-
-        if (!moderation.isValid()) {
-            throw new ModerationException("Нецензурный текст: " + moderation.getReason());
-        }
 
         User client = userRepository.findByEmail(user.getUsername());
         OfferProjection offer = OfferProjection.builder()
@@ -128,7 +125,9 @@ public class OfferService {
             throw new RuntimeException(e);
         }
 
-        return new CreateOfferResponse(savedOffer);
+        CreateOfferResponse response = new CreateOfferResponse(savedOffer);
+        moderationService.sendForModeration(savedOffer.getId(), dto.title(), dto.description());
+        return response;
     }
 
     @Transactional
@@ -177,6 +176,9 @@ public class OfferService {
 
         fileStorageService.saveAllFiles(photos, paths);
         fileStorageService.deleteFiles(photoPathsNotInList);
+
+        offerRepository.save(offer);
+        moderationService.sendForModeration(offer.getId(), offer.getTitle(), offer.getDescription());
     }
 
     public OfferDTO getOfferData(UserDetails user, Long offerId) {
@@ -323,10 +325,9 @@ public class OfferService {
         boolean isAdmin = user != null && user.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
-        if (!isAdmin) {
-            builder.with("isBanned", "eq", false)
-                    .with("user.isBanned", "eq", false);
-        }
+
+        builder.with("isBanned", "eq", false)
+                .with("user.isBanned", "eq", false);
 
 
         if (dto.pas().seed() != null && dto.pas().snapshot() != null) {

@@ -46,7 +46,7 @@ jwt:
   strength: 10
 ai:
   moderation:
-    key: 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
+    key: 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
 
 ---
 spring:

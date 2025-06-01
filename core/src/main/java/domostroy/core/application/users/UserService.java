@@ -5,6 +5,7 @@ import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangeUserIn
 import domostroy.core.adapters.adaptersInput.dto.output.users.AdminUserDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.AnotherUserDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.UserDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.users.UserNotificationFlag;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import domostroy.core.application.offers.OfferRepository;
 import lombok.RequiredArgsConstructor;
@@ -138,5 +139,10 @@ public class UserService {
         User curUser = userRepository.findByEmail(user.getUsername());
         curUser.setNotificationsEnabled(notificationsEnabled);
         userRepository.save(curUser);
+    }
+
+    public UserNotificationFlag getUserNotificationFlag(UserDetails user) {
+        User curUser = userRepository.findByEmail(user.getUsername());
+        return new UserNotificationFlag(curUser.getNotificationsEnabled());
     }
 }
