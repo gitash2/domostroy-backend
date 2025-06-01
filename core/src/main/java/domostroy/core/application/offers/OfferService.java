@@ -116,7 +116,8 @@ public class OfferService {
                         null,
                         it,
                         savedOffer.getId(),
-                        false
+                        false,
+                        null
                 )).toList();
         offerCalendarRepository.saveOfferDates(dates);
         offerPhotoRepository.saveAll(offerPhotos);
