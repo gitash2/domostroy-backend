@@ -46,12 +46,15 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
     boolean isMyOffer(Long offerId, String username);
 
     @Query(value = """
-                    select count(f) != 0
-                    from favourites f
-                    join users u on u.email =:username
-                    where f.offer_id = :offerId
-            """, nativeQuery = true)
-    boolean isFavourite(Long offerId, String username);
+    select exists (
+        select 1
+        from favourites f
+        join users u on f.user_id = u.id
+        where u.email = :username and f.offer_id = :offerId
+    )
+    """, nativeQuery = true)
+    boolean isFavourite(@Param("offerId") Long offerId, @Param("username") String username);
+
 
     @Query("""
                     select count(o)
