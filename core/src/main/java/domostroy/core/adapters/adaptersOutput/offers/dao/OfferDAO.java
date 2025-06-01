@@ -21,6 +21,7 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
       FROM OfferProjection o
       JOIN o.favouredBy u
      WHERE u.id = :userId
+     and o.isBanned = false
     """,
             countQuery = """
     SELECT count(o)
