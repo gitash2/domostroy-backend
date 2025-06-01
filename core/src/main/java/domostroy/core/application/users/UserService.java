@@ -45,17 +45,21 @@ public class UserService {
     }
 
 
-    public AnotherUserDTO getUserData(Long userId) {
-        User user = userRepository.findById(userId);
+    public AnotherUserDTO getUserData(Long userId, UserDetails user) {
+        User requestedUser = userRepository.findById(userId);
+        String phoneNumber = null;
+        if (user != null) {
+                phoneNumber = requestedUser.getPhoneNumber();
+        }
         return new AnotherUserDTO(
                 userId,
-                user.getFirstName(),
-                user.getLastName(),
-                offerRepository.getMyOffersCount(user.getId()),
-                user.getCreatedAt(),
-                user.getPhoneNumber(),
-                user.getRole().getRole().toString(),
-                user.getIsBanned()
+                requestedUser.getFirstName(),
+                requestedUser.getLastName(),
+                offerRepository.getMyOffersCount(requestedUser.getId()),
+                requestedUser.getCreatedAt(),
+                phoneNumber,
+                requestedUser.getRole().getRole().toString(),
+                requestedUser.getIsBanned()
         );
     }
 
@@ -127,5 +131,12 @@ public class UserService {
                 .toList();
 
         return new PageImpl<>(dtoList, pageable, dtoList.size());
+    }
+
+    @Transactional
+    public void editNotifications(UserDetails user, boolean notificationsEnabled) {
+        User curUser = userRepository.findByEmail(user.getUsername());
+        curUser.setNotificationsEnabled(notificationsEnabled);
+        userRepository.save(curUser);
     }
 }

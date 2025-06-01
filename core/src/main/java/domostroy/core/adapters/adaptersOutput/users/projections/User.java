@@ -38,6 +38,8 @@ public class User implements UserDetails {
 
     private Boolean isBanned;
 
+    private Boolean notificationsEnabled;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     private RoleProjection role;
