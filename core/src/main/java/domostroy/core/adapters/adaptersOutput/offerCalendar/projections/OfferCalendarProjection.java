@@ -24,4 +24,7 @@ public class OfferCalendarProjection {
     private LocalDate date;
     private Long offerId;
     private boolean isBooked;
+
+    @ManyToMany(mappedBy = "dates")
+    private Set<RentRequestProjection> rentRequests;
 }
