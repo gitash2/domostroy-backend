@@ -312,12 +312,12 @@ public class OfferService {
     public OfferOutput search(UserDetails user, SearchDTO dto) {
         String username = user != null ? user.getUsername() : null;
         User user2 = userRepository.findByEmail(username);
-        Page<OfferProjection> offers = getOffersPage(dto, user2);
+        Page<OfferProjection> offers = getOffersPage(dto, user2, false);
         Page<OfferInfoDTO> data = mapToOfferInfoPage(username, offers);
         return new OfferOutput(PaginationOutput.fromPage(offers), data);
     }
 
-    private Page<OfferProjection> getOffersPage(SearchDTO dto, UserDetails user) {
+    private Page<OfferProjection> getOffersPage(SearchDTO dto, UserDetails user, Boolean includeBanned) {
         FilterSpecificationBuilder<OfferProjection> builder =
                 new FilterSpecificationBuilder<OfferProjection>()
                         .withCriteriaFrom(dto.searchCriteriaList());
@@ -325,7 +325,7 @@ public class OfferService {
         boolean isAdmin = user != null && user.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
-        if (!isAdmin) {
+        if (!includeBanned) {
             builder.with("isBanned", "eq", false)
                     .with("user.isBanned", "eq", false);
         }
@@ -341,7 +341,7 @@ public class OfferService {
     }
 
     public AdminOfferOutput searchAdmin(SearchDTO dto, UserDetails user) {
-        Page<OfferProjection> offers = getOffersPage(dto, user);
+        Page<OfferProjection> offers = getOffersPage(dto, user, true);
         Page<AdminOfferInfoDTO> data = mapToAdminOfferInfoPage(user.getUsername(), offers);
         return new AdminOfferOutput(PaginationOutput.fromPage(offers), data);
     }
