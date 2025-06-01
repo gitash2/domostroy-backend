@@ -325,9 +325,10 @@ public class OfferService {
         boolean isAdmin = user != null && user.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
-
-        builder.with("isBanned", "eq", false)
-                .with("user.isBanned", "eq", false);
+        if (!isAdmin) {
+            builder.with("isBanned", "eq", false)
+                    .with("user.isBanned", "eq", false);
+        }
 
 
         if (dto.pas().seed() != null && dto.pas().snapshot() != null) {
