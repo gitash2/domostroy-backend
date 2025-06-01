@@ -74,13 +74,15 @@ public class RentRequestService {
         );
         rentRequestRepository.save(rentRequestProjection);
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfigConstants.Queue.QUEUE_RESPONSE_TO_OFFER,
-                new OfferResponseEvent(
-                        lessor.getEmail(),
-                        offer.getTitle()
-                )
-        );
+        if (lessor.getNotificationsEnabled()) {
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfigConstants.Queue.QUEUE_RESPONSE_TO_OFFER,
+                    new OfferResponseEvent(
+                            lessor.getEmail(),
+                            offer.getTitle()
+                    )
+            );
+        }
     }
 
     @Transactional
@@ -110,12 +112,14 @@ public class RentRequestService {
         rentRequestRepository.saveAll(toDelete);
 
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfigConstants.Queue.QUEUE_CHANGE_REQUEST_STATUS,
-                new RentRequestStatusChangedEvent(
-                        user.getEmail(),
-                        offer.getTitle(),
-                        status.name()));
+        if (user.getNotificationsEnabled()) {
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfigConstants.Queue.QUEUE_CHANGE_REQUEST_STATUS,
+                    new RentRequestStatusChangedEvent(
+                            user.getEmail(),
+                            offer.getTitle(),
+                            status.name()));
+        }
     }
 
     private boolean areDatesInvalid(Set<LocalDate> date, Long offerId) {

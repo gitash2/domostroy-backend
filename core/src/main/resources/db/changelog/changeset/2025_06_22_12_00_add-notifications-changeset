@@ -1,0 +1,2 @@
+alter table users
+    add column notifications_enabled boolean default true;
