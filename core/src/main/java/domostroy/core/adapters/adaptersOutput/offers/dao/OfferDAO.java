@@ -22,6 +22,7 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
       JOIN o.favouredBy u
      WHERE u.id = :userId
      and o.isBanned = false
+     and u.isBanned = false
     """,
             countQuery = """
     SELECT count(o)
@@ -29,6 +30,7 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
       JOIN o.favouredBy u
      WHERE u.id = :userId
      and o.isBanned = false
+     and u.isBanned = false
   """
     )
     Page<OfferProjection> findFavouriteOffersByUserId(
