@@ -259,16 +259,22 @@ public class OfferService {
         User user = userRepository.findByEmail(email);
         Page<OfferProjection> favouriteOffers = offerRepository.findFavouriteOffersByUserId(user.getId(), pageable);
 
-        return favouriteOffers
+        List<FavouriteOfferDTO> result = favouriteOffers
+                .filter(it -> Boolean.FALSE.equals(it.getUser().getIsBanned()))
                 .map(it -> new FavouriteOfferDTO(
                         it.getId(),
                         it.getTitle(),
                         it.getDescription(),
                         it.getPrice(),
                         it.getCurrency(),
-                        fileStorageService.getPresignedUrl(offerPhotoRepository.findAllPhotoPathsByOfferId(it.getId()).getFirst()),
+                        fileStorageService.getPresignedUrl(
+                                offerPhotoRepository.findAllPhotoPathsByOfferId(it.getId()).getFirst()
+                        ),
                         it.getUserId()
-                ));
+                ))
+                .toList();
+
+        return new PageImpl<>(result);
     }
 
     @Transactional
