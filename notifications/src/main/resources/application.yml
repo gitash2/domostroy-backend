@@ -12,7 +12,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: domostroy.noreply5@gmail.com
+    username: domostroy.noreply@gmail.com
     password: vsgu txhx zvpg eihw
     protocol: smtp
     properties:
@@ -38,7 +38,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: domostroy.noreply5@gmail.com
+    username: domostroy.noreply@gmail.com
     password: vsgu txhx zvpg eihw
     protocol: smtp
     properties:
