@@ -64,6 +64,7 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
                     select count(o)
                     from OfferProjection o
                     where o.userId = :userId
+                    and o.isBanned = false
             """)
     int getMyOffersCount(Long userId);
 
