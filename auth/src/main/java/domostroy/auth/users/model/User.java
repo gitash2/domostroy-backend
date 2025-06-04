@@ -6,10 +6,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Table(name = "users")
@@ -19,16 +18,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
-
-    public User(String email, String password, String firstName, String lastName, Role role, String phoneNumber) {
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.role = role;
-        this.phoneNumber = phoneNumber;
-    }
-
     @Id
     @GeneratedValue
     private Integer id;
@@ -48,6 +37,8 @@ public class User implements UserDetails {
     private Role role;
 
     private String phoneNumber;
+
+    private LocalDateTime createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

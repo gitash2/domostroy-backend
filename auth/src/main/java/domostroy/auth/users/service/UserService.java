@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -80,12 +81,14 @@ public class UserService implements UserDetailsService {
             log.info("User is valid registering");
 
             User user = new User(
+                    null,
                     req.email(),
                     passwordEncoder.encode(req.password()),
                     data.firstName(),
                     data.lastName(),
                     role,
-                    data.phoneNumber()
+                    data.phoneNumber(),
+                    LocalDateTime.now()
             );
 
             userRepository.save(user);

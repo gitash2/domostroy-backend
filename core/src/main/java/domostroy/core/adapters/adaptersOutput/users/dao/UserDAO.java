@@ -44,9 +44,13 @@ public interface UserDAO extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("""
-        delete from RentRequestProjection rrp
-        where rrp.userId = :userId
-    """)
+    delete from RentRequestProjection rrp
+    where rrp.offerId in (
+        select o.id
+        from OfferProjection o
+        where o.userId = :userId
+    )
+""")
     void deleteRentRequestByUserId(Long userId);
 
     @Modifying

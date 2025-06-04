@@ -1,6 +1,5 @@
 package domostroy.core.adapters.adaptersInput.api.mobile;
 
-import domostroy.aggregates.users.domain.RoleModel;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangePasswordDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangeUserInfoDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.AnotherUserDTO;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
