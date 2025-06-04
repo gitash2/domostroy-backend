@@ -29,7 +29,7 @@ public class FilterSpecificationBuilder<T> {
 
     public FilterSpecificationBuilder<T> withRandomOrder(String seed, Instant snapshot) {
         this.seed = seed;
-        this.snapshot = snapshot;
+        //this.snapshot = snapshot;
         return this;
     }
 
