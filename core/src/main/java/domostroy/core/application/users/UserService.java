@@ -1,23 +1,18 @@
 package domostroy.core.application.users;
 
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangePasswordDTO;
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.users.ChangeUserInfoDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.AdminUserDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.AnotherUserDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.UserDTO;
-import domostroy.core.adapters.adaptersInput.dto.output.users.UserNotificationFlag;
 import domostroy.core.adapters.adaptersOutput.users.projections.User;
 import domostroy.core.application.offers.OfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +26,6 @@ public class UserService {
     private final OfferRepository offerRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     public UserDTO getCurrentUserData(Long userId) {
         User user = userRepository.findById(userId);
         return new UserDTO(
@@ -43,59 +37,6 @@ public class UserService {
                 user.getRole().getRole().toString(),
                 user.getIsBanned()
         );
-    }
-
-
-    public AnotherUserDTO getUserData(Long userId, UserDetails user) {
-        User requestedUser = userRepository.findById(userId);
-        String phoneNumber = null;
-        if (user != null) {
-                phoneNumber = requestedUser.getPhoneNumber();
-        }
-        return new AnotherUserDTO(
-                userId,
-                requestedUser.getFirstName(),
-                requestedUser.getLastName(),
-                offerRepository.getMyOffersCount(requestedUser.getId()),
-                requestedUser.getCreatedAt(),
-                phoneNumber,
-                requestedUser.getRole().getRole().toString(),
-                requestedUser.getIsBanned()
-        );
-    }
-
-    @Transactional
-    public void changePassword(Long userId, ChangePasswordDTO dto) {
-        User user = userRepository.findById(userId);
-        if (!passwordEncoder.matches(dto.previousPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Неверный старый пароль");
-        }
-
-        if (passwordEncoder.matches(dto.newPassword(), user.getPassword())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Новый пароль должен отличаться от текущего"
-            );
-        }
-
-        user.setPassword(passwordEncoder.encode(dto.newPassword()));
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void changeUserInfo(Long userId, ChangeUserInfoDTO dto) {
-        User user = userRepository.findById(userId);
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
-        user.setPhoneNumber(dto.phoneNumber());
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void banUser(Long userId, Boolean isBanned) {
-        User user = userRepository.findById(userId);
-        user.setIsBanned(isBanned);
-        userRepository.save(user);
     }
 
     @Transactional
@@ -134,15 +75,21 @@ public class UserService {
         return new PageImpl<>(dtoList, pageable, dtoList.size());
     }
 
-    @Transactional
-    public void editNotifications(UserDetails user, boolean notificationsEnabled) {
-        User curUser = userRepository.findByEmail(user.getUsername());
-        curUser.setNotificationsEnabled(notificationsEnabled);
-        userRepository.save(curUser);
-    }
-
-    public UserNotificationFlag getUserNotificationFlag(UserDetails user) {
-        User curUser = userRepository.findByEmail(user.getUsername());
-        return new UserNotificationFlag(curUser.getNotificationsEnabled());
+    public AnotherUserDTO getUserData(Long userId, UserDetails user) {
+        User requestedUser = userRepository.findById(userId);
+        String phoneNumber = null;
+        if (user != null) {
+            phoneNumber = requestedUser.getPhoneNumber();
+        }
+        return new AnotherUserDTO(
+                userId,
+                requestedUser.getFirstName(),
+                requestedUser.getLastName(),
+                offerRepository.getMyOffersCount(requestedUser.getId()),
+                requestedUser.getCreatedAt(),
+                phoneNumber,
+                requestedUser.getRole().getRole().toString(),
+                requestedUser.getIsBanned()
+        );
     }
 }

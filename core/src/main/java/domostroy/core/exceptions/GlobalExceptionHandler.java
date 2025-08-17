@@ -52,5 +52,11 @@ public class GlobalExceptionHandler {
                 .body(new ValidationError(Set.of(ex.getLocalizedMessage())));
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<GeneralError> handleOthers(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ValidationError(Set.of(ex.getLocalizedMessage())));
+    }
+
 
 }

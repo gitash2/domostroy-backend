@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/validate/**").permitAll()
                         .requestMatchers("/auth/sign-in").permitAll()
                         .requestMatchers("/auth/confirmRegistration").permitAll()
+                        .requestMatchers("/users/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

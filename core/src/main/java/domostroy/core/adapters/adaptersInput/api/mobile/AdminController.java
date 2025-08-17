@@ -1,6 +1,6 @@
 package domostroy.core.adapters.adaptersInput.api.mobile;
 
-import domostroy.aggregates.users.domain.RoleModel;
+import domostroy.users.domain.RoleModel;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.admin.AdminOfferOutput;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.admin.BanOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.users.AdminUserDTO;
@@ -62,7 +62,7 @@ public class AdminController {
                     size = 10,
                     sort = "createdAt",
                     direction = Sort.Direction.DESC
-    )Pageable pageable, @AuthenticationPrincipal User user) {
+            )Pageable pageable, @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(userService.searchUsers(query, pageable, user));
     }
 
@@ -97,16 +97,5 @@ public class AdminController {
     @ResponseStatus(HttpStatus.OK)
     public void unbanOffer(@PathVariable Long offerId) {
         offerService.unbanOffer(offerId);
-    }
-
-    @PostMapping("/users/{userId}/ban")
-    @PreAuthorize(RoleModel.Allowed.ADMIN)
-    @Operation(
-            summary = "Забанить/разблокировать пользователя",
-            description = "Блокирует/разблокирует пользователя по ID"
-    )
-    @ResponseStatus(HttpStatus.OK)
-    public void banUser(@PathVariable Long userId, @RequestParam Boolean isBanned) {
-        userService.banUser(userId, isBanned);
     }
 }

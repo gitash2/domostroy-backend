@@ -36,16 +36,9 @@ public class OfferProjection {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "favourites")
-    Set<User> favouredBy;
-
     private Integer cityId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(name = "user_id", insertable = false, updatable = false)
+    @Column(name = "user_id")
     private Long userId;
 
     private LocalDateTime createdAt;

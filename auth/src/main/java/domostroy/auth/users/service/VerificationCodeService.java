@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 public class VerificationCodeService {
     private final RedisTemplate<String, VerificationData> redisTemplate;
 
-
     public void saveVerificationCode(String userId, VerificationData data, long ttl, TimeUnit unit) {
         String key = getKey(userId);
         redisTemplate.opsForValue().set(key, data , ttl, unit);

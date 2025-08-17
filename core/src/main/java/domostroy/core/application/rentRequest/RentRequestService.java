@@ -3,7 +3,10 @@ package domostroy.core.application.rentRequest;
 import domostroy.aggregates.offer.domain.OfferPhotoPath;
 import domostroy.aggregates.rentRequest.RentRequestStatus;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.rent.CreateRentRequestDTO;
-import domostroy.core.adapters.adaptersInput.dto.output.rentRequest.*;
+import domostroy.core.adapters.adaptersInput.dto.output.rentRequest.RentInfoDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.rentRequest.RentOfferDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.rentRequest.RentRequestDTO;
+import domostroy.core.adapters.adaptersInput.dto.output.rentRequest.RentUserDTO;
 import domostroy.core.adapters.adaptersOutput.cities.projections.CityProjection;
 import domostroy.core.adapters.adaptersOutput.offerCalendar.projections.OfferCalendarProjection;
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
@@ -18,6 +21,7 @@ import domostroy.core.application.users.UserRepository;
 import domostroy.core.config.rabbitMQ.RabbitMQConfigConstants;
 import domostroy.core.exceptions.rentRequest.InvalidRentRequestException;
 import domostroy.events.mail.OfferResponseEvent;
+import domostroy.events.mail.RentRequestStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
@@ -28,13 +32,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import domostroy.events.mail.RentRequestStatusChangedEvent;
-
-
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.util.function.UnaryOperator.identity;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @RequiredArgsConstructor
@@ -52,8 +57,8 @@ public class RentRequestService {
 
     @Transactional
     public void createRentRequest(CreateRentRequestDTO dto, UserDetails user) {
-        User lessor = userRepository.findByOfferId(dto.offerId());
         OfferProjection offer = offerRepository.findById(dto.offerId());
+        User lessor = userRepository.findById(offer.getUserId());
         Long offerId = dto.offerId();
         Set<LocalDate> dates = dto.dates();
 

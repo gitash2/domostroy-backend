@@ -29,6 +29,23 @@ spring:
     listener:
       simple:
         default-requeue-rejected: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      topics:
+        user-registered: user.registered
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: user-events
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+    listener:
+      ack-mode: batch
+messaging:
+  type: kafka
 
 ---
 spring:

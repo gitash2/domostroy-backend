@@ -18,7 +18,6 @@ import static org.springframework.http.ResponseEntity.ok;
 public class CategoryController {
     private final CategoryService categoryService;
 
-
     @GetMapping
     @Operation(summary = "Получить список всех категории")
     public ResponseEntity<CategoryDTO> getCategories() {

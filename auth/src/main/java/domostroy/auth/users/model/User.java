@@ -20,7 +20,7 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -39,6 +39,10 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     private LocalDateTime createdAt;
+
+    private boolean isBanned;
+
+    private boolean notificationsEnabled;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

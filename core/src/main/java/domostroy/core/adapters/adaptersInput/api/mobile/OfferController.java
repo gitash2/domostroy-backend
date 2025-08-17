@@ -122,9 +122,8 @@ public class OfferController {
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public void updateOffer(@RequestPart(name = "metadata") UpdateOfferDTO dto,
-                            @RequestPart(name = "file") @Nullable Collection<MultipartFile> photos,
-                            @AuthenticationPrincipal UserDetails user) {
-        offerService.update(dto, photos, user);
+                            @RequestPart(name = "file") @Nullable Collection<MultipartFile> photos) {
+        offerService.update(dto, photos);
     }
 
     @PostMapping("/calendar")

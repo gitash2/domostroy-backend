@@ -18,7 +18,7 @@ create table if not exists offers
     price       numeric(19, 2) not null,
     created_at  timestamptz default now(),
     city_id     int            not null references cities(id),
-    user_id     bigint not null references users (id)
+    user_id     bigint not null
 );
 
 create sequence if not exists offers_seq
@@ -39,9 +39,6 @@ create sequence if not exists offer_images_seq
     increment by 50
     cache 50;
 
-
-
-
 create table if not exists offer_calendar
 (
     id          bigint primary key,
@@ -58,7 +55,7 @@ create sequence if not exists offer_calendar_seq
 create table rent_request(
     id bigint primary key,
     offer_id bigint references offers(id),
-    user_id bigint references users(id)
+    user_id bigint not null
 );
 
 create sequence if not exists rent_request_seq

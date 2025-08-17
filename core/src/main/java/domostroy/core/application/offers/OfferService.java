@@ -1,16 +1,24 @@
 package domostroy.core.application.offers;
 
 import domostroy.core.adapters.adaptersInput.dto.input.misc.PaginationOutput;
-import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.*;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.CreateOfferRequest;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.CreateOfferResponse;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.OfferDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.OfferPhoto;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.UpdateAvailableDatesDTO;
+import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.UpdateOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.admin.AdminOfferInfoDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.admin.AdminOfferOutput;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.admin.BanOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.FavouriteOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.MyOfferDTO;
 import domostroy.core.adapters.adaptersInput.dto.input.mobile.offers.preview.OfferInfoDTO;
+import domostroy.core.adapters.adaptersInput.dto.mappers.AdminOfferInfoMapper;
+import domostroy.core.adapters.adaptersInput.dto.mappers.FavouriteOfferMapper;
+import domostroy.core.adapters.adaptersInput.dto.mappers.MyOfferMapper;
+import domostroy.core.adapters.adaptersInput.dto.mappers.OfferMapper;
 import domostroy.core.adapters.adaptersInput.dto.output.calendar.CalendarDTO;
 import domostroy.core.adapters.adaptersInput.dto.output.calendar.CalendarOutput;
-import domostroy.core.adapters.adaptersInput.dto.output.offers.ModerationResponse;
 import domostroy.core.adapters.adaptersInput.dto.output.offers.OfferOutput;
 import domostroy.core.adapters.adaptersOutput.offerCalendar.projections.OfferCalendarProjection;
 import domostroy.core.adapters.adaptersOutput.offerPhotos.projections.OfferPhotoProjection;
@@ -27,8 +35,8 @@ import domostroy.core.application.misc.filter.SearchDTO;
 import domostroy.core.application.offerCalendar.OfferCalendarRepository;
 import domostroy.core.application.rentRequest.RentRequestRepository;
 import domostroy.core.application.users.UserRepository;
-import domostroy.core.exceptions.ModerationException;
 import domostroy.core.exceptions.ObjectNotFoundException;
+import domostroy.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -46,6 +54,8 @@ import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -65,24 +75,18 @@ public class OfferService {
     private final LLMService llmService;
     private final String OFFERS_PATH = "offerPhotos";
 
+    private final MyOfferMapper myOfferMapper;
+    private final OfferMapper offerMapper;
+    private final FavouriteOfferMapper favouriteOfferMapper;
+    private final AdminOfferInfoMapper adminOfferInfoMapper;
+
     @Transactional
     public CreateOfferResponse createOffer(CreateOfferRequest dto, Collection<MultipartFile> files, UserDetails user) {
-        User user2 = userRepository.findByEmail(user.getUsername());
-
         User client = userRepository.findByEmail(user.getUsername());
-        OfferProjection offer = OfferProjection.builder()
-                .title(dto.title())
-                .description(dto.description())
-                .price(dto.price())
-                .categoryId(dto.categoryId())
-                .currency(dto.currency())
-                .cityId(dto.cityId())
-                .userId(client.getId())
-                .createdAt(LocalDateTime.now())
-                .isBanned(false)
-                .banReason(null)
-                .user(user2)
-                .build();
+
+        OfferProjection offer = offerMapper.toJPAEntity(dto);
+        offer.setUserId(client.getId());
+        offer.setCreatedAt(LocalDateTime.now());
 
         OfferProjection savedOffer = offerRepository.save(offer);
 
@@ -131,7 +135,7 @@ public class OfferService {
     }
 
     @Transactional
-    public void update(UpdateOfferDTO dto, Collection<MultipartFile> files, UserDetails user) {
+    public void update(UpdateOfferDTO dto, Collection<MultipartFile> files) {
         OfferProjection offer = offerRepository.findById(dto.id());
 
         offer.setCategoryId(dto.categoryId());
@@ -232,22 +236,7 @@ public class OfferService {
     public Page<MyOfferDTO> getMyOffers(String email, Pageable pageable) {
         User user = userRepository.findByEmail(email);
         return offerRepository.getMyOffers(user.getId(), pageable)
-                .map(proj -> {
-                    String firstPath = offerPhotoRepository
-                            .findAllPhotoPathsByOfferId(proj.getId())
-                            .getFirst();
-                    return new MyOfferDTO(
-                            proj.getId(),
-                            proj.getTitle(),
-                            proj.getDescription(),
-                            proj.getPrice(),
-                            proj.getCurrency(),
-                            fileStorageService.getPresignedUrl(firstPath),
-                            proj.getCreatedAt().toLocalDate(),
-                            proj.isBanned(),
-                            proj.getBanReason()
-                    );
-                });
+                .map(proj -> myOfferMapper.toDTO(proj, offerPhotoRepository, fileStorageService));
     }
 
     private String constructFileStoragePath(OfferProjection offer) {
@@ -259,19 +248,19 @@ public class OfferService {
         User user = userRepository.findByEmail(email);
         Page<OfferProjection> favouriteOffers = offerRepository.findFavouriteOffersByUserId(user.getId(), pageable);
 
-        List<FavouriteOfferDTO> result = favouriteOffers
-                .filter(it -> Boolean.FALSE.equals(it.getUser().getIsBanned()))
-                .map(it -> new FavouriteOfferDTO(
-                        it.getId(),
-                        it.getTitle(),
-                        it.getDescription(),
-                        it.getPrice(),
-                        it.getCurrency(),
-                        fileStorageService.getPresignedUrl(
-                                offerPhotoRepository.findAllPhotoPathsByOfferId(it.getId()).getFirst()
-                        ),
-                        it.getUserId()
-                ))
+        Map<Long, User> usersById = userRepository.findAllByIds(
+                favouriteOffers.getContent().stream()
+                        .map(OfferProjection::getUserId)
+                        .toList()
+        ).stream().collect(Collectors.toMap(User::getId, u -> u));
+
+        List<FavouriteOfferDTO> result = favouriteOffers.getContent().stream()
+                .filter(offer -> !offer.isBanned())
+                .filter(offer -> {
+                    User owner = usersById.get(offer.getUserId());
+                    return owner != null && !owner.getIsBanned();
+                })
+                .map(offer -> favouriteOfferMapper.toDTO(offer, offerPhotoRepository, fileStorageService))
                 .toList();
 
         return new PageImpl<>(result);
@@ -290,30 +279,9 @@ public class OfferService {
         } else {
             favourites.remove(offer);
         }
-        userRepository.save(user);
+
+        // TODO add into favourites(user_id, offer_id)
     }
-
-    /*public OfferOutput search(UserDetails user, SearchDTO dto) {
-        String username = user != null ? user.getUsername() : null;
-
-        FilterSpecificationBuilder<OfferProjection> builder =
-                new FilterSpecificationBuilder<OfferProjection>()
-                        .withCriteriaFrom(dto.searchCriteriaList());
-
-        if (dto.pas().seed() != null && dto.pas().snapshot() != null) {
-            builder.withRandomOrder(dto.pas().seed(), dto.pas().snapshot());
-        }
-
-        Specification<OfferProjection> spec = builder.build();
-
-        Pageable pageReq = dto.pas().toPageRequest();
-
-        Page<OfferProjection> offers =
-                offerRepository.findAll(spec, pageReq);
-
-        Page<OfferInfoDTO> data = mapToOfferInfoPage(username, offers);
-        return new OfferOutput(PaginationOutput.fromPage(offers), data);
-    }*/
 
     public OfferOutput search(UserDetails user, SearchDTO dto) {
         String username = user != null ? user.getUsername() : null;
@@ -335,7 +303,6 @@ public class OfferService {
             builder.with("isBanned", "eq", false)
                     .with("user.isBanned", "eq", false);
         }
-
 
         if (dto.pas().seed() != null && dto.pas().snapshot() != null) {
             builder.withRandomOrder(dto.pas().seed(), dto.pas().snapshot());
@@ -359,17 +326,7 @@ public class OfferService {
                     String firstPath = offerPhotoRepository.findAllPhotoPathsByOfferId(proj.getId())
                             .stream().findFirst()
                             .orElseThrow(() -> new ObjectNotFoundException("No photo for offer " + proj.getId()));
-                    return new AdminOfferInfoDTO(
-                            proj.getId(),
-                            proj.getTitle(),
-                            proj.getDescription(),
-                            proj.getPrice(),
-                            proj.getCurrency(),
-                            fileStorageService.getPresignedUrl(firstPath),
-                            cityRepository.findById(proj.getCityId()).getName(),
-                            proj.isBanned(),
-                            proj.getBanReason()
-                    );
+                    return adminOfferInfoMapper.toDTO(proj, offerPhotoRepository, fileStorageService, cityRepository);
                 }).toList();
         return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }

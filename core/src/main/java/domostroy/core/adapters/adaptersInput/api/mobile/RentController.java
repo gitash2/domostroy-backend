@@ -24,8 +24,6 @@ import static org.springframework.http.ResponseEntity.ok;
 public class RentController {
     private final RentRequestService rentService;
 
-
-
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public void create(@RequestBody CreateRentRequestDTO dto, @AuthenticationPrincipal UserDetails user) {

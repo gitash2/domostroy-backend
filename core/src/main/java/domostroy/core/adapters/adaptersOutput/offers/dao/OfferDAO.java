@@ -19,35 +19,20 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
             value = """
     SELECT o
       FROM OfferProjection o
-      JOIN o.favouredBy u
-     WHERE u.id = :userId
+     WHERE o.userId = :userId
      and o.isBanned = false
-     and u.isBanned = false
     """,
             countQuery = """
     SELECT count(o)
       FROM OfferProjection o
-      JOIN o.favouredBy u
-     WHERE u.id = :userId
+     WHERE o.userId = :userId
      and o.isBanned = false
-     and u.isBanned = false
   """
     )
     Page<OfferProjection> findFavouriteOffersByUserId(
             @Param("userId") Long userId,
             Pageable pageable
     );
-
-
-
-    @Query("""
-            select count(o) != 0
-            from OfferProjection o
-            join User u on u.email =:username
-            where o.id = :offerId
-            and u.id = o.userId
-            """)
-    boolean isMyOffer(Long offerId, String username);
 
     @Query(value = """
     select exists (
@@ -84,4 +69,5 @@ public interface OfferDAO extends JpaRepository<OfferProjection, Long>, JpaSpeci
         where o.userId = :userId
     """)
     List<Long> findAllOfferIdsByUserId(Long userId);
+
 }

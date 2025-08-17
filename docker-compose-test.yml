@@ -1,0 +1,135 @@
+networks:
+  mynet:
+    driver: bridge
+
+services:
+  rabbitmq:
+    image: rabbitmq@sha256:a0f4e8eefa826f9576d596ca4b1b9168a60118a1a83768dbb5c00d8479cdbfb3
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - mynet
+  redis:
+    image: redis@sha256:bd41d55aae1ecff61b2fafd0d66761223fe94a60373eb6bb781cfbb570a84079
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_USER=admin
+      - REDIS_USER_PASSWORD=admin
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      retries: 5
+    volumes:
+      - ./redisdata:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    restart: always
+    networks:
+      - mynet
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - mynet
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - mynet
+  postgres:
+    image: postgres:15-alpine
+    container_name: domostroy
+    restart: always
+    environment:
+      POSTGRES_USER: me
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: domostroy_db
+    ports:
+      - "25431:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - mynet
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        module: auth
+    image: myapp/auth:dev
+    env_file:
+      - run_auth_dev.env
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    ports:
+      - "8082:8082"
+    networks:
+      - mynet
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        module: core
+    image: myapp/core:dev
+    env_file:
+      - run_core_dev.env
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+    networks:
+      - mynet
+  notifications:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        module: notifications
+    image: myapp/notifications:dev
+    env_file:
+      - run_notifications_dev.env
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8083:8083"
+    networks:
+      - mynet
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        module: gateway
+    image: myapp/gateway:dev
+    env_file:
+      - run_gateway_dev.env
+    depends_on:
+      - core
+      - auth
+      - notifications
+    ports:
+      - "8080:8080"
+    networks:
+      - mynet

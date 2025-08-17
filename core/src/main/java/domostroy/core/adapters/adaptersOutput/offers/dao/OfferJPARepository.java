@@ -2,6 +2,7 @@ package domostroy.core.adapters.adaptersOutput.offers.dao;
 
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
 import domostroy.core.application.offers.OfferRepository;
+import domostroy.core.application.users.UserRepository;
 import domostroy.core.exceptions.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,11 +11,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
 public class OfferJPARepository implements OfferRepository {
     private final OfferDAO offerDAO;
+    private final UserRepository userRepository;
 
     @Override
     public OfferProjection getOfferById(Long offerId) {
@@ -44,7 +47,10 @@ public class OfferJPARepository implements OfferRepository {
 
     @Override
     public boolean isMyOffer(Long offerId, String email) {
-        return offerDAO.isMyOffer(offerId, email);
+        return Objects.equals(offerDAO.findById(offerId).orElseThrow(
+                () -> new ObjectNotFoundException("Offer with id: " + offerId + "is not found"))
+                        .getUserId(),
+                userRepository.findByEmail(email).getId());
     }
 
     @Override
@@ -70,7 +76,7 @@ public class OfferJPARepository implements OfferRepository {
     @Override
     public OfferProjection findById(Long offerId) {
         return offerDAO.findOfferById(offerId)
-                .orElseThrow(() -> new ObjectNotFoundException("Object with id" + offerId + "is not found"));
+                .orElseThrow(() -> new ObjectNotFoundException("Object with id " + offerId + " is not found"));
     }
 
     @Override
