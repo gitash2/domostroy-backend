@@ -1,11 +1,9 @@
 package domostroy.core.adapters.adaptersOutput.users.projections;
 
+import domostroy.users.domain.Role;
 import domostroy.core.adapters.adaptersOutput.offers.projections.OfferProjection;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,13 +13,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@Entity
-@Table(name = "users")
+
 @Getter
 @Setter
 public class User implements UserDetails {
-    @Id
-    @GeneratedValue(generator = "users_seq")
     private Long id;
 
     private String email;
@@ -40,21 +35,13 @@ public class User implements UserDetails {
 
     private Boolean notificationsEnabled;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private RoleProjection role;
+    private Role role;
 
-    @ManyToMany( fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "favourites",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "offer_id")
-    )
     private Set<OfferProjection> favourites;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.role.name()));
+        return List.of(new SimpleGrantedAuthority(role.getRole().toString()));
     }
 
     @Override
